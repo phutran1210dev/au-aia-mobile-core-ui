@@ -1,0 +1,7 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "teammateMode": "auto",
+  "permissions": {
+    "allow": ["Read(//Users/alex/.claude/**)"]
+  }
+}
