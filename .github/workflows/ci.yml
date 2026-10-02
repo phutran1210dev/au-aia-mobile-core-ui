@@ -1,12 +1,11 @@
 name: CI
 on:
-  push:
-    branches:
-      - master
-  pull_request:
-  merge_group:
-    types:
-      - checks_requested
+  # Manual runs only for now, to save GitHub Actions minutes.
+  # To run automatically again, restore these triggers:
+  #   push: { branches: [master] }
+  #   pull_request:
+  #   merge_group: { types: [checks_requested] }
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
