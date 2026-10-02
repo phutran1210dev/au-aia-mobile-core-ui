@@ -30,7 +30,7 @@ grep -rnE "#[0-9A-Fa-f]{3,8}\b|rgba?\(" src --include='*.ts' --include='*.tsx' |
 - **`style` prop**: merged last.
 - **Accessibility**: role, state (disabled, selected, busy) and a label when there is no text child. Keep font scaling on. Touch targets reach 44pt, using `hitSlop` when the visual is smaller.
 - **Logic-free**: no data fetching, navigation, storage, analytics or hardcoded copy. Text comes from props or children.
-- **React APIs**: while the peer range allows React 18, avoid React 19-only APIs (`use()`, `ref` as a prop, `<Context value>`).
+- **React APIs**: React 19.2 is the minimum. Accept `ref` as a regular prop and never use `forwardRef` (hard rule 6, skill rule `react19-no-forwardref`). Read context with `use()`, not `useContext()`.
 
 ## Files
 

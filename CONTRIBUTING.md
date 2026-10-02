@@ -96,15 +96,15 @@ We follow the [conventional commits specification](https://www.conventionalcommi
 
 Our pre-commit hooks verify that your commit message matches this format when committing.
 
-### Releasing
+### Publishing to npm
 
-We use [release-it](https://github.com/release-it/release-it) to bump the version based on semver, create the tag and publish a GitHub release:
+We use [release-it](https://github.com/release-it/release-it) to make it easier to publish new versions. It handles common tasks like bumping version based on semver, creating tags and releases etc.
+
+To publish new versions, run the following:
 
 ```sh
 yarn release
 ```
-
-Publishing to npm is turned off until the private registry is configured. Never publish this package to the public npm registry.
 
 ### Scripts
 

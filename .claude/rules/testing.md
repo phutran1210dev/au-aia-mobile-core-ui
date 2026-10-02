@@ -6,16 +6,12 @@ paths:
 
 # Testing
 
-Load `/react-native-testing` before writing tests. It is not installed yet:
-
-```sh
-npx skills@latest add callstack/react-native-testing-library --skill react-native-testing
-```
+Load `/react-native-testing` before writing tests.
 
 ## Setup
 
 - Jest 29 with `@react-native/jest-preset`. The config lives under `"jest"` in the root `package.json`.
-- Hooks and components use `@testing-library/react-native`. It is a devDependency that is not installed yet; name it in the checkpoint summary when adding it. Use its built-in matchers, not `@testing-library/jest-native`.
+- Hooks and components use `@testing-library/react-native` v14, the React 19 line with async `render`. It is a devDependency that is not installed yet; name it in the checkpoint summary when adding it. Use its built-in matchers, not `@testing-library/jest-native`.
 - Tests live in `__tests__/` next to their subject and are named `<subject>.test.ts(x)`.
 - One file: `yarn test src/theme/__tests__/<file>.test.ts`. By name: `yarn test -t "<name>"`.
 

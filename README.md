@@ -26,7 +26,7 @@ const result = multiply(3, 7);
 
 ## License
 
-UNLICENSED. This package is proprietary and is never published to the public npm registry.
+MIT
 
 ---
 
