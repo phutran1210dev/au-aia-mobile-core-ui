@@ -3,5 +3,17 @@
   "teammateMode": "auto",
   "permissions": {
     "allow": ["Read(//Users/alex/.claude/**)"]
+  },
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "yarn typecheck >&2 && yarn lint >&2 || exit 2"
+          }
+        ]
+      }
+    ]
   }
 }

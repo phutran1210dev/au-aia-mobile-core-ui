@@ -89,8 +89,8 @@
     "typescript": "^6.0.3"
   },
   "peerDependencies": {
-    "react": "*",
-    "react-native": "*"
+    "react": ">=19.2.0",
+    "react-native": ">=0.83.10"
   },
   "workspaces": [
     "example"
@@ -151,7 +151,7 @@
       "customExportConditions": [
         "require",
         "react-native",
-        "<%- project.sourceCondition -%>"
+        "au-aia-mobile-core-ui-source"
       ]
     },
     "modulePathIgnorePatterns": [
