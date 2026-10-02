@@ -4,14 +4,11 @@ AU-AIA design system for React Native: design tokens, theming and core UI compon
 
 ## Installation
 
-
 ```sh
 npm install @au-aia/mobile-core-ui
 ```
 
-
 ## Usage
-
 
 ```js
 import { multiply } from '@au-aia/mobile-core-ui';
@@ -21,7 +18,6 @@ import { multiply } from '@au-aia/mobile-core-ui';
 const result = multiply(3, 7);
 ```
 
-
 ## Contributing
 
 - [Development workflow](CONTRIBUTING.md#development-workflow)
@@ -30,7 +26,7 @@ const result = multiply(3, 7);
 
 ## License
 
-MIT
+UNLICENSED. This package is proprietary and is never published to the public npm registry.
 
 ---
 

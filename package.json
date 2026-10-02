@@ -52,13 +52,14 @@
     "url": "git+https://github.com/phutran1210dev/au-aia-mobile-core-ui.git"
   },
   "author": "alex <phutran1210.dev@gmail.com> (https://github.com/phutran1210dev)",
-  "license": "MIT",
+  "license": "UNLICENSED",
   "bugs": {
     "url": "https://github.com/phutran1210dev/au-aia-mobile-core-ui/issues"
   },
   "homepage": "https://github.com/phutran1210dev/au-aia-mobile-core-ui#readme",
   "publishConfig": {
-    "registry": "https://registry.npmjs.org/"
+    "registry": "https://TODO-private-registry.invalid/",
+    "access": "restricted"
   },
   "devDependencies": {
     "@commitlint/config-conventional": "^21.2.0",
@@ -125,7 +126,7 @@
       "tagName": "v${version}"
     },
     "npm": {
-      "publish": true
+      "publish": false
     },
     "github": {
       "release": true
