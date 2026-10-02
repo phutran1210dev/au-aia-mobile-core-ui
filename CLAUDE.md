@@ -20,12 +20,12 @@ Core design system for AU-AIA React Native apps: design tokens, an antd-style `C
 
 ## Design sources (read with the Figma MCP, never guess values)
 
-| Source                                                                                                                                       | Use for                                                     |
-| -------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
-| [Qi tokens – AIA, node 102-2817](https://www.figma.com/design/HxDGXJYqeMwdxg0pJNyrQf/Qi-tokens-%E2%80%93-AIA?node-id=102-2817&m=dev)         | Token NAMES and hierarchy (naming source of truth)          |
-| [DDS AU v2.0.11 primary, node 20765-1243](https://www.figma.com/design/MJBaY5fhgct1a5goBK8XLw/DDS-AU-v2.0.11?node-id=20765-1243&m=dev)       | Primary palette VALUES                                      |
-| [DDS AU v2.0.11 secondary, node 20765-1321](https://www.figma.com/design/MJBaY5fhgct1a5goBK8XLw/DDS-AU-v2.0.11?node-id=20765-1321&m=dev)     | Secondary palette VALUES                                    |
-| [DDS AU v2.0.11 interactive, node 15329-57416](https://www.figma.com/design/MJBaY5fhgct1a5goBK8XLw/DDS-AU-v2.0.11?node-id=15329-57416&m=dev) | State colors: default, pressed, focused, disabled, selected |
+| Source                                                                                                                                       | Use for                                                  |
+| -------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
+| [Qi tokens – AIA, node 102-2817](https://www.figma.com/design/HxDGXJYqeMwdxg0pJNyrQf/Qi-tokens-%E2%80%93-AIA?node-id=102-2817&m=dev)         | Palette VALUES and family names (source of truth)        |
+| [DDS AU v2.0.11 primary, node 20765-1243](https://www.figma.com/design/MJBaY5fhgct1a5goBK8XLw/DDS-AU-v2.0.11?node-id=20765-1243&m=dev)       | Cross-check of primary values; Qi wins on a mismatch     |
+| [DDS AU v2.0.11 secondary, node 20765-1321](https://www.figma.com/design/MJBaY5fhgct1a5goBK8XLw/DDS-AU-v2.0.11?node-id=20765-1321&m=dev)     | Cross-check of secondary values; Qi wins on a mismatch   |
+| [DDS AU v2.0.11 interactive, node 15329-57416](https://www.figma.com/design/MJBaY5fhgct1a5goBK8XLw/DDS-AU-v2.0.11?node-id=15329-57416&m=dev) | Interactive ROLES (`Interactive/*`); no state colors yet |
 
 - Use `get_variable_defs`, `get_design_context` and `get_screenshot` on each node.
 - Figma MCP unavailable, or a value missing or ambiguous: STOP and ask. Never invent a hex value.
@@ -59,34 +59,12 @@ While a background job runs:
 - Metro / dev servers are long-lived: start at most one per session, reuse it, and never restart it unless I ask or it has crashed.
 - If a job fails, read its output, fix the cause, then rerun it once. Do not retry the same failing command unchanged.
 
-## Folder structure
-
-`src/` holds only the scaffold today (`multiply`, to be removed). Target layout:
-
-```text
-src/
-  index.tsx            public API; the only entry point ("exports": ".")
-  theme/
-    palette/           primary.ts secondary.ts neutral.ts functional.ts   Figma values, INTERNAL
-    tokens/            seed.ts map.ts alias.ts semantic.ts types.ts
-    algorithms/        default.ts dark.ts compact.ts generatePalette.ts
-    config-provider/   ConfigProvider.tsx context.ts useConfig.ts
-    hooks.ts           useToken
-    getDesignToken.ts  token resolution outside React
-    createStyles.ts    token-aware StyleSheet factory
-    utils/             deepMerge.ts color.ts
-    index.ts
-  components/          UI kit (later phase)
-docs/tokens.md         Figma path -> code name -> default value -> layer
-example/src/           playground screens
-```
-
 ## Color tokens in brief
 
-1. **Palette**: raw hex from DDS Figma. Internal; components and apps never read it.
-2. **Seed**: antd seed names (`colorPrimary`, `colorSecondary`, `colorTextBase`...). Default is the Figma brand value.
+1. **Palette**: raw hex from Qi, `palette.digitalRed[500]`. Internal; components and apps never read it.
+2. **Seed**: antd seed names (`colorPrimary`, `colorTextBase`...; no `colorSecondary`). Default is the Figma brand value.
 3. **Map**: antd MapToken and AliasToken names and meanings (`colorPrimaryActive`, `colorBgContainer`...).
-4. **Semantic**: AIA Qi names (`colorInteractivePrimaryPressed`...). References a Map token or palette step, never hex.
+4. **Semantic**: DDS `Interactive/*` names, interim (`colorInteractiveActionablePressed`...). References a Map token or palette step, never hex.
 
 Each layer derives from the one before. With no overrides, the output equals the Figma values exactly; overriding a Map token updates the semantic tokens that reference it, as antd does. Override priority, low to high: library defaults, root `ConfigProvider`, nested `ConfigProvider`, `theme.components.<Name>`, component `style` prop. Details: `.claude/rules/tokens-naming.md`.
 
@@ -112,14 +90,14 @@ Each layer derives from the one before. With no overrides, the output equals the
 
 A path-scoped rule loads when Claude reads a matching file. Before creating the first file in an area, read its rule file first.
 
-| File                 | Loads for                       | Covers                                                          |
-| -------------------- | ------------------------------- | --------------------------------------------------------------- |
-| `tokens-naming.md`   | `src/`, `docs/`, `example/src/` | 4 layers, resolution order, naming, override priority, JSDoc    |
-| `theme.md`           | `src/theme/`, `src/index.tsx`   | Public API, resolver, memoization, ConfigProvider, createStyles |
-| `components.md`      | `src/components/`               | Token use, sizes, states, variants, accessibility               |
-| `testing.md`         | `__tests__/`, `*.test.ts(x)`    | Jest + Testing Library conventions, required theme tests        |
-| `example-app.md`     | `example/`                      | Playground rules                                                |
-| `commits-release.md` | every session                   | Conventional Commits, hooks, Release It                         |
+| File                 | Loads for                       | Covers                                                                         |
+| -------------------- | ------------------------------- | ------------------------------------------------------------------------------ |
+| `tokens-naming.md`   | `src/`, `docs/`, `example/src/` | 4 layers, resolution order, naming, override priority, JSDoc                   |
+| `theme.md`           | `src/theme/`, `src/index.tsx`   | Folder layout, public API, resolver, memoization, ConfigProvider, createStyles |
+| `components.md`      | `src/components/`               | Token use, sizes, states, variants, accessibility                              |
+| `testing.md`         | `__tests__/`, `*.test.ts(x)`    | Jest + Testing Library conventions, required theme tests                       |
+| `example-app.md`     | `example/`                      | Playground rules                                                               |
+| `commits-release.md` | every session                   | Conventional Commits, hooks, Release It                                        |
 
 ## Skills (exactly what is in `.claude/skills/`)
 
@@ -156,6 +134,6 @@ A path-scoped rule loads when Claude reads a matching file. Before creating the 
 - [ ] `yarn typecheck`, `yarn lint`, `yarn test` and `yarn prepare` pass; no new skipped tests.
 - [ ] Public API change: tests, example screen, JSDoc and exported types. Token change: `docs/tokens.md` too.
 - [ ] No `expo` import in `src/`, no new runtime dependency, palette not exported.
-- [ ] No hex or `rgb()` literal in `src/` outside `src/theme/palette/` and test fixtures.
+- [ ] No hex or `rgb()` literal in `src/` outside `src/theme/palette/`, tests and fixtures (see the grep in `components.md`).
 - [ ] UI change: iOS and Android screenshots shown at the checkpoint.
 - [ ] Conventional Commit message drafted; committed only after the user approves.

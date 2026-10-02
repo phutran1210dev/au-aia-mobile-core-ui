@@ -11,6 +11,37 @@ Mirror antd v5 behavior, adapted to React Native. When unsure, check what antd d
 [ConfigProvider](https://ant.design/components/config-provider#config)) and call out any deviation.
 Token model and resolution order live in `tokens-naming.md`.
 
+## Folder layout
+
+```text
+src/
+  index.tsx              public API; the only entry point ("exports": ".")
+  theme/
+    index.ts             the `theme` object and type re-exports
+    types.ts             ThemeConfig, MappingAlgorithm, ComponentThemeConfig, ComponentSize
+    palette/             Qi values, INTERNAL. One file per Qi group: monotone, primary,
+                         secondary, tertiary, semantic (Qi's group name, not semantic
+                         tokens), alpha; ungrouped.ts for light green. index.ts builds `palette`
+    tokens/              types.ts (public token interfaces), seed.ts, map.ts (slots,
+                         colorFamilies), alias.ts, semantic.ts, references.ts
+    algorithms/          default.ts, generatePalette.ts (dark.ts, compact.ts once Figma has values)
+    config-provider/     ConfigProvider.tsx, context.ts (two contexts), useConfig.ts
+    resolver.ts          the one pure resolver: config merge, token and component caches
+    hooks.ts             useToken; useComponentToken (internal)
+    getDesignToken.ts    token resolution outside React
+    createStyles.ts      token-aware StyleSheet factory
+    utils/               color.ts, deepMerge.ts, stableKey.ts, createCache.ts
+    __fixtures__/        Figma and antd reference values for tests
+    __tests__/           theme tests through the public API
+  components/            UI kit (later phase)
+docs/tokens.md           every public token; Figma discrepancies; open questions for design
+GLOSSARY.md              domain terms
+example/src/             App.tsx shell, Playground.tsx tabs, screens/<feature>/
+```
+
+Unit tests for internals sit next to their subject, such as `utils/__tests__/` and
+`algorithms/__tests__/`.
+
 ## Public API (exported from `src/index.tsx` only)
 
 ```tsx
@@ -63,6 +94,7 @@ const t = theme.getDesignToken({ token: { colorPrimary: '#RRGGBB' } });
 
 - `createStyles((token, config) => styles)` returns a `useStyles()` hook. It builds the `StyleSheet` once per resolved token object and size, cached in a `WeakMap`, never once per render.
 - Components get every theme-dependent style through it.
+- `createStyles(factory, { component: 'Button' })` styles with `theme.components.Button` applied. The option is `@experimental` until the UI kit settles it.
 
 ## Performance
 

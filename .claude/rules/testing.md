@@ -11,7 +11,7 @@ Load `/react-native-testing` before writing tests.
 ## Setup
 
 - Jest 29 with `@react-native/jest-preset`. The config lives under `"jest"` in the root `package.json`.
-- Hooks and components use `@testing-library/react-native` v14, the React 19 line with async `render`. It is a devDependency that is not installed yet; name it in the checkpoint summary when adding it. Use its built-in matchers, not `@testing-library/jest-native`.
+- Hooks and components use `@testing-library/react-native` v14, the React 19 line with async `render`, and its peer `test-renderer` (pinned `~1.2.0`, whose `react-reconciler` 0.33 matches React 19.2). Use its built-in matchers, not `@testing-library/jest-native`.
 - Tests live in `__tests__/` next to their subject and are named `<subject>.test.ts(x)`.
 - One file: `yarn test src/theme/__tests__/<file>.test.ts`. By name: `yarn test -t "<name>"`.
 
