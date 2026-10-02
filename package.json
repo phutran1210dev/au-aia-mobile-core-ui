@@ -151,7 +151,7 @@
       "customExportConditions": [
         "require",
         "react-native",
-        "<%- project.sourceCondition -%>"
+        "au-aia-mobile-core-ui-source"
       ]
     },
     "modulePathIgnorePatterns": [
