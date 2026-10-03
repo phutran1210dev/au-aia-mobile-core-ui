@@ -107,6 +107,53 @@ android {
     }
 }
 
+/**
+ * AIA Everest is licensed and not committed. When its files are in
+ * example/assets/fonts/AIAEverest, this task turns them into the `aia_everest` font family
+ * resource that MainApplication registers, so fontWeight picks the right file. Without the
+ * files the app still builds, and headings fall back to the system font.
+ */
+def aiaEverestFonts = file("../../assets/fonts/AIAEverest")
+def aiaEverestRes = layout.buildDirectory.dir("generated/aia-everest/res").get().asFile
+def aiaEverestWeights = [
+    AIAEverestRegular: 400,
+    AIAEverestMedium: 500,
+    AIAEverestBold: 700,
+    AIAEverestExtraBold: 800,
+]
+
+def generateAiaEverestFontFamily = tasks.register("generateAiaEverestFontFamily") {
+    inputs.files(fileTree(aiaEverestFonts) { include "AIAEverest*.ttf" })
+    outputs.dir(aiaEverestRes)
+    doLast {
+        def fontDir = new File(aiaEverestRes, "font")
+        project.delete(fontDir)
+        def present = aiaEverestWeights.findAll { name, weight ->
+            new File(aiaEverestFonts, "${name}.ttf").exists()
+        }
+        if (present.isEmpty()) {
+            return
+        }
+        fontDir.mkdirs()
+        def entries = present.collect { name, weight ->
+            def resource = name.toLowerCase()
+            project.copy {
+                from new File(aiaEverestFonts, "${name}.ttf")
+                into fontDir
+                rename { "${resource}.ttf" }
+            }
+            "  <font app:fontStyle=\"normal\" app:fontWeight=\"${weight}\" app:font=\"@font/${resource}\"/>"
+        }
+        new File(fontDir, "aia_everest.xml").text =
+            "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
+            "<font-family xmlns:app=\"http://schemas.android.com/apk/res-auto\">\n" +
+            entries.join("\n") + "\n</font-family>\n"
+    }
+}
+
+android.sourceSets.main.res.srcDir(aiaEverestRes)
+tasks.named("preBuild") { dependsOn(generateAiaEverestFontFamily) }
+
 dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")

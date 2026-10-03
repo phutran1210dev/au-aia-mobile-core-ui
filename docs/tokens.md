@@ -242,6 +242,27 @@ These Qi values have no reference-model name. Each name is the style property fo
 
 `lineHeightHeadline6` and `letterSpacingHeadline6` pair with `fontSizeXL`, which holds Qi's headline6 size. Overriding `fontSize` leaves these tokens at their Qi values.
 
+## Fonts
+
+The library ships no font files: each app registers the fonts itself. The typography tokens expect these family names:
+
+| Token                | Family name            | Faces to register                                        |
+| -------------------- | ---------------------- | -------------------------------------------------------- |
+| `fontFamily`         | `Open Sans`, interim   | Light (300) to ExtraBold (800), each with its italic     |
+| `fontFamilyHeadline` | `AIA Everest`, interim | Regular (400), Medium (500), Bold (700), ExtraBold (800) |
+| `fontFamilyCode`     | a system family        | none                                                     |
+
+Register every face of a family under one family name. One `fontFamily` value plus `fontWeight` then picks the right file on both platforms:
+
+- **iOS**: add the files to the app target and list them under `UIAppFonts` in `Info.plist`. iOS groups the faces by the family name inside the files.
+- **Android**: describe the family in a font XML resource in `res/font`, with `app:fontWeight` and `app:fontStyle` for each file, and register it in `MainApplication.onCreate` with `ReactFontManager.getInstance().addCustomFont(this, "Open Sans", R.font.open_sans)`, imported from `com.facebook.react.common.assets`. React Native then picks the face with `Typeface.create(family, weight, italic)` on Android 9 (API 28) and later. Earlier versions only have regular and bold.
+- **Bare React Native**: list the font folders under `assets` in `react-native.config.js` and run `npx @callstack/react-native-asset@3.1.0`. It writes the iOS entries, the Android font XML and the `addCustomFont` call. The example app links Open Sans this way.
+- **Expo**: use the `expo-font` config plugin. On Android, its object syntax takes a `fontFamily` and `fontDefinitions` with a `weight` for each file.
+
+Two faces with the same family name and weight make the choice ambiguous, so register only the faces above: AIA Everest Condensed reports the family `AIA Everest` and weights 400 and 500 too. Naming each file after its PostScript name, such as `OpenSans-SemiBold.ttf`, keeps iOS and Android in step.
+
+AIA Everest has no 600 face, so `fontWeight: 600` draws Medium (500). An app that registers a family under another name sets `fontFamily` or `fontFamilyHeadline` through `ConfigProvider`. A family the app has not registered falls back to the system font; iOS logs it, Android does not.
+
 ## Motion tokens
 
 Figma defines no motion, so every value is the reference model's default, in ms instead of seconds. Curves are `[x1, y1, x2, y2]` arrays for `Easing.bezier(...curve)`.

@@ -87,3 +87,7 @@ nitrogen/
 
 # MCP config (contains Figma token)
 .mcp.json
+
+# AIA Everest is a licensed font: never commit it (README, "Fonts in the example app")
+example/assets/fonts/**/AIAEverest*.ttf
+example/assets/fonts/**/AIAEverest*.otf

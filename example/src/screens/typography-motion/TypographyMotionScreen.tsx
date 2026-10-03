@@ -81,6 +81,13 @@ export function TypographyMotionScreen() {
         onChange={setFontSize}
       />
 
+      <Section
+        title="Font weights"
+        hint="Each line should look different; AIA Everest has no 600 face"
+      >
+        <WeightSamples />
+      </Section>
+
       <ConfigProvider theme={{ token: { fontSize } }}>
         <Section title="Headings" hint="Size / line height in dp">
           <Headings />
@@ -218,6 +225,36 @@ function BodyText() {
       </Text>
     </>
   );
+}
+
+const WEIGHTS = [400, 500, 600, 700] as const;
+
+/** One fontFamily token plus fontWeight, which needs every face registered as one family. */
+function WeightSamples() {
+  const styles = useStyles();
+  const { token } = theme.useToken();
+  const families = [
+    ['fontFamily', token.fontFamily],
+    ['fontFamilyHeadline', token.fontFamilyHeadline],
+  ] as const;
+  return families.map(([name, family]) => (
+    <View key={name} style={styles.sample}>
+      <Text style={styles.mono}>
+        {name}: {family}
+      </Text>
+      {WEIGHTS.map((weight) => (
+        <Text
+          key={weight}
+          style={[
+            styles.weightSample,
+            { fontFamily: family, fontWeight: weight },
+          ]}
+        >
+          {weight}: Your next check-up is due in March
+        </Text>
+      ))}
+    </View>
+  ));
 }
 
 function FontFamilies() {
@@ -431,6 +468,11 @@ const useStyles = createStyles((token) => ({
     gap: 10,
   },
   sample: { gap: 2 },
+  weightSample: {
+    fontSize: token.fontSizeLG,
+    lineHeight: token.fontHeightLG,
+    color: token.colorText,
+  },
   headline: {
     fontFamily: token.fontFamilyHeadline,
     fontWeight: token.fontWeightHeadline,
