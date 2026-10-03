@@ -1,6 +1,6 @@
 # AU-AIA Mobile Core UI
 
-The shared design language of AU-AIA mobile apps: the brand colors design defines, and the tokens apps use to color an interface.
+The shared design language of AU-AIA mobile apps: the brand colors, type and sizes design defines, and the tokens apps use to style an interface.
 
 ## Language
 
@@ -33,7 +33,7 @@ A single design decision that other tokens derive from, such as the primary bran
 _Avoid_: base color, root token
 
 **Map token**:
-A token derived from seed tokens that colors one purpose, such as the primary color while pressed or secondary text. Alias tokens, which name roles such as disabled text, belong to this layer.
+A token derived from seed tokens that sets the value for one purpose, such as the primary color while pressed or the first heading size. Alias tokens, which name roles such as disabled text, belong to this layer.
 _Avoid_: derived color
 
 **Slot**:
@@ -41,7 +41,7 @@ One of the ten positions in a family's color scale, lightest first, with the see
 _Avoid_: index, level, palette index
 
 **Semantic token**:
-A token named for the AIA interface role it colors rather than for a color, such as the fill of an actionable element. It always points at another token or a step, never at a raw color.
+A token named for the AIA interface role it styles rather than for its value, such as the fill of an actionable element or the headline font. It always points at another token or a design value, never at a raw color.
 _Avoid_: design token (too broad), component token
 
 **Interactive role**:
@@ -52,6 +52,20 @@ _Avoid_: intent, variant, status
 A condition of an interactive element that changes its color: default, pressed, focused, disabled or selected. Mobile has no hover state.
 _Avoid_: mode, status, variant
 
+### Type and surfaces
+
+**Heading**:
+Text that titles a screen or a section, in levels 1 to 6.
+_Avoid_: headline (Qi's word, kept only inside names copied from Qi), title
+
+**Body text**:
+Running text, such as paragraphs and labels.
+_Avoid_: copy, paragraph text
+
+**Elevation**:
+How far a surface appears to sit above the one beneath it, shown by its shadow.
+_Avoid_: depth, shadow level
+
 ### Theming
 
 **Override**:
@@ -61,3 +75,19 @@ _Avoid_: customization, theme patch
 **Algorithm**:
 A rule that derives map tokens from seed tokens, such as building a whole color family from one overridden seed color.
 _Avoid_: generator, theme mode
+
+**Color scheme**:
+Whether an interface is light or dark.
+_Avoid_: theme mode, appearance
+
+**Density**:
+How tightly a theme packs text and controls; the compact algorithm raises it. It is not component size, which one part of an app sets for its components.
+_Avoid_: compact mode
+
+**Reduced motion**:
+A person's operating-system setting that asks apps to minimize animation.
+_Avoid_: animations off, no-motion mode
+
+**Precomputed theme**:
+A complete set of resolved tokens produced before the app runs and used without deriving anything.
+_Avoid_: static theme, baked theme

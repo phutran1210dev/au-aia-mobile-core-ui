@@ -20,12 +20,14 @@ Core design system for AU-AIA React Native apps: design tokens, a `ConfigProvide
 
 ## Design sources (read with the Figma MCP, never guess values)
 
-| Source                                                                                                                                       | Use for                                                  |
-| -------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
-| [Qi tokens – AIA, node 102-2817](https://www.figma.com/design/HxDGXJYqeMwdxg0pJNyrQf/Qi-tokens-%E2%80%93-AIA?node-id=102-2817&m=dev)         | Palette VALUES and family names (source of truth)        |
-| [DDS AU v2.0.11 primary, node 20765-1243](https://www.figma.com/design/MJBaY5fhgct1a5goBK8XLw/DDS-AU-v2.0.11?node-id=20765-1243&m=dev)       | Cross-check of primary values; Qi wins on a mismatch     |
-| [DDS AU v2.0.11 secondary, node 20765-1321](https://www.figma.com/design/MJBaY5fhgct1a5goBK8XLw/DDS-AU-v2.0.11?node-id=20765-1321&m=dev)     | Cross-check of secondary values; Qi wins on a mismatch   |
-| [DDS AU v2.0.11 interactive, node 15329-57416](https://www.figma.com/design/MJBaY5fhgct1a5goBK8XLw/DDS-AU-v2.0.11?node-id=15329-57416&m=dev) | Interactive ROLES (`Interactive/*`); no state colors yet |
+| Source                                                                                                                                       | Use for                                                   |
+| -------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
+| [Qi tokens – AIA, node 102-2817](https://www.figma.com/design/HxDGXJYqeMwdxg0pJNyrQf/Qi-tokens-%E2%80%93-AIA?node-id=102-2817&m=dev)         | Palette VALUES and family names (source of truth)         |
+| Qi tokens – AIA, `AIA Typography` collection (read with `use_figma`; mode `EN`)                                                              | Typography VALUES: families, sizes, line heights, weights |
+| DDS: Components v3.2.1 (link TBD)                                                                                                            | Spacing and radius variables (Part 2b); ask for the link  |
+| [DDS AU v2.0.11 primary, node 20765-1243](https://www.figma.com/design/MJBaY5fhgct1a5goBK8XLw/DDS-AU-v2.0.11?node-id=20765-1243&m=dev)       | Cross-check of primary values; Qi wins on a mismatch      |
+| [DDS AU v2.0.11 secondary, node 20765-1321](https://www.figma.com/design/MJBaY5fhgct1a5goBK8XLw/DDS-AU-v2.0.11?node-id=20765-1321&m=dev)     | Cross-check of secondary values; Qi wins on a mismatch    |
+| [DDS AU v2.0.11 interactive, node 15329-57416](https://www.figma.com/design/MJBaY5fhgct1a5goBK8XLw/DDS-AU-v2.0.11?node-id=15329-57416&m=dev) | Interactive ROLES (`Interactive/*`); no state colors yet  |
 
 - Use `get_variable_defs`, `get_design_context` and `get_screenshot` on each node.
 - Figma MCP unavailable, or a value missing or ambiguous: STOP and ask. Never invent a hex value.
