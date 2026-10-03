@@ -17,6 +17,8 @@ paths:
 | 4   | Semantic (AIA)      | `colorInteractiveActionable`, `colorInteractiveActionablePressed`, `colorInteractiveDisabled`                                                                               | Apps, by override                      | A reference to a Map/Alias token or a palette step                        | Yes    |
 
 - Layer 3 also holds Alias tokens (`alias.ts`, e.g. `colorTextDisabled`, `colorBgContainerDisabled`): named roles that reference Map tokens, as the reference model defines them.
+- Typography follows the same layers. Qi `AIA Typography` values (mode `EN`, body and Mobile only) live in `src/theme/typography/`, internal like the palette. Seeds (`fontSize`), maps (`fontSizeHeading1`, `lineHeight`) and semantic typography tokens (`fontFamilyHeadline`) read them.
+- Tokens Figma does not define take the reference model's default, converted for React Native (motion in ms, curves as `[x1, y1, x2, y2]`). Colors never do: a missing color maps to the nearest Qi value, marked interim (docs/specs/theme-parity.md, D5).
 - Names in layers 2 and 3 come from the reference model (`docs/tokens.md` § Prior art). Names in layer 4 come from DDS `Interactive/*` until Qi publishes semantic names (interim). Palette values and family names come from Qi; on a mismatch with DDS, Qi wins.
 - A raw hex literal is allowed only in `src/theme/palette/`. A hex literal in `tokens/semantic.ts` is a bug.
 
@@ -25,9 +27,9 @@ paths:
 One pure resolver, shared by `ConfigProvider`, `theme.useToken` and `theme.getDesignToken`:
 
 1. **Seed**: default seeds merged with the seed keys in `token`.
-2. **Map**: per color family, a seed equal to its default uses the Figma-tuned map. An overridden seed runs the algorithm (`generatePalette`, a ten-color palette). Other families keep their Figma values.
+2. **Map**: per color family, a seed equal to its default uses the Figma-tuned map. An overridden seed runs the algorithm (`generatePalette`, a ten-color palette). Other families keep their Figma values. `fontSize` works the same way with `generateFontTokens`. After every algorithm, `motion: false` sets the three durations to 0.
 3. **Map overrides**: Map and Alias keys in `token` apply exactly. Nothing is regenerated from them.
-4. **References**: Alias and Semantic tokens resolve against the result of step 3.
+4. **References**: `fontHeight*`, Alias and Semantic tokens resolve against the result of step 3.
 5. **Semantic overrides**: Semantic keys in `token` apply exactly. Unknown (custom) keys pass through untouched.
 
 Consequence of step 4: overriding `colorPrimaryActive` also moves every semantic token that references it, unless that semantic token is overridden too.
@@ -61,7 +63,11 @@ The first row is a real DDS path; the others illustrate the rule (verify every p
 
 - Palette keys: `palette.<family>[<step>]`. Family in lowerCamelCase; steps numbered exactly as in Figma, never renumbered to palette slots.
 - Collisions: if a converted name equals a Seed, Map or Alias name (`text/secondary` gives `colorTextSecondary`), it must mean the same thing, and the existing key is kept once. If the meanings differ, STOP and ask. Never rename silently.
-- Non-color categories (spacing, radius, typography) will use their category word as the prefix. Confirm when that phase starts.
+- Non-color tokens with a reference-model name keep that name. A Qi typography value without one becomes a semantic typography token, named from its Qi path (docs/specs/theme-parity.md, D7):
+  1. The first segment becomes the style property: `Family` gives `fontFamily`, `Size` gives `fontSize`, `Weight` gives `fontWeight`, `Line height` gives `lineHeight`, `Letter spacing` gives `letterSpacing`.
+  2. Qi's other words follow, without the `Mobile` and `default` segments: `Family/headline` gives `fontFamilyHeadline`, `Weight/headline/default` gives `fontWeightHeadline`, `Letter spacing/Mobile/headline1` gives `letterSpacingHeadline1`.
+  3. A Qi value that already has a reference name is not added twice: `Weight/body/strong1` is `fontWeightStrong`.
+- Spacing and radius names follow once their Figma source is linked (Part 2b).
 - Renaming or removing a public token is a breaking change.
 
 ## JSDoc on every token
@@ -76,8 +82,9 @@ The first row is a real DDS path; the others illustrate the rule (verify every p
 colorInteractiveActionablePressed: string;
 ```
 
-Each comment says what the token colors in plain words, its Figma path, and its default value
-with what it references. The hex in `@default` is copied from Figma, never typed from memory.
+Each comment says what the token styles in plain words, its Figma path (or `none; the reference
+model's default`), and its default value with what it references. The value in `@default` is
+copied from Figma or the reference model, never typed from memory.
 A value design has not decided carries `@interim pending design: <reason>` and an entry under
 "Open questions for design" in `docs/tokens.md`.
 

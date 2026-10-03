@@ -1,5 +1,8 @@
 import type { GeneratedPalette } from '../algorithms/generatePalette';
 import { palette } from '../palette';
+import { typography } from '../typography';
+import { resolveReferences, type ReferenceTable } from './references';
+import type { ColorSeed } from './seed';
 import type { MapToken, SeedToken } from './types';
 
 /** A palette slot that map tokens read: 1 to 7 of ten; slot 6 holds the seed color. Internal. */
@@ -69,7 +72,7 @@ type FamilyTokens<F extends ColorFamily> = Pick<
 /** What the derivation algorithm needs to know about one seeded family. Internal. */
 export interface ColorFamilySpec {
   /** The seed token that controls the family. */
-  seed: keyof SeedToken;
+  seed: ColorSeed;
   /** Slots filled with Qi steps, used while the seed keeps its default. */
   figmaSlots: PaletteSlots;
   /** The slot `*Hover` reads: 5 for Primary and Error, 4 for the others. */
@@ -149,6 +152,79 @@ export const figmaBgTokens: Readonly<BgTokens> = {
   colorBorderSecondary: palette.digitalCharcoal[100],
 };
 
+/** The font sizes and line heights `fontSize` controls. Internal. */
+export type FontTokens = Pick<
+  MapToken,
+  | 'fontSizeSM'
+  | 'fontSizeLG'
+  | 'fontSizeXL'
+  | 'fontSizeHeading1'
+  | 'fontSizeHeading2'
+  | 'fontSizeHeading3'
+  | 'fontSizeHeading4'
+  | 'fontSizeHeading5'
+  | 'lineHeight'
+  | 'lineHeightSM'
+  | 'lineHeightLG'
+  | 'lineHeightHeading1'
+  | 'lineHeightHeading2'
+  | 'lineHeightHeading3'
+  | 'lineHeightHeading4'
+  | 'lineHeightHeading5'
+  | 'fontHeight'
+  | 'fontHeightSM'
+  | 'fontHeightLG'
+>;
+
+const { size, lineHeight } = typography;
+
+/**
+ * Figma font sizes and line heights, used while `fontSize` keeps its default: Qi body sizes,
+ * then Mobile headlines 1 to 6 (docs/specs/theme-parity.md, D6). Line heights are ratios of
+ * their size, so `Math.round(size * ratio)` gives the Qi px back. Internal.
+ */
+export const figmaFontTokens: Readonly<FontTokens> = {
+  fontSizeSM: size.body3,
+  fontSizeLG: size.body1,
+  fontSizeXL: size.headline6,
+  fontSizeHeading1: size.headline1,
+  fontSizeHeading2: size.headline2,
+  fontSizeHeading3: size.headline3,
+  fontSizeHeading4: size.headline4,
+  fontSizeHeading5: size.headline5,
+  lineHeight: lineHeight.body2 / size.body2,
+  lineHeightSM: lineHeight.body3 / size.body3,
+  lineHeightLG: lineHeight.body1 / size.body1,
+  lineHeightHeading1: lineHeight.headline1 / size.headline1,
+  lineHeightHeading2: lineHeight.headline2 / size.headline2,
+  lineHeightHeading3: lineHeight.headline3 / size.headline3,
+  lineHeightHeading4: lineHeight.headline4 / size.headline4,
+  lineHeightHeading5: lineHeight.headline5 / size.headline5,
+  fontHeight: lineHeight.body2,
+  fontHeightSM: lineHeight.body3,
+  fontHeightLG: lineHeight.body1,
+};
+
+type FontHeightTokens = Pick<
+  MapToken,
+  'fontHeight' | 'fontHeightSM' | 'fontHeightLG'
+>;
+
+/** Each `fontHeight*` as its size times its line height, rounded to whole dp. */
+const fontHeightReferences: ReferenceTable<FontHeightTokens, MapToken> = {
+  fontHeight: (map) => Math.round(map.fontSize * map.lineHeight),
+  fontHeightSM: (map) => Math.round(map.fontSizeSM * map.lineHeightSM),
+  fontHeightLG: (map) => Math.round(map.fontSizeLG * map.lineHeightLG),
+};
+
+/**
+ * `fontHeight*` recomputed from `map`, so they follow overridden sizes and line heights as
+ * the reference model's do. Internal.
+ */
+export function deriveFontHeights(map: MapToken): FontHeightTokens {
+  return resolveReferences(fontHeightReferences, map);
+}
+
 /** Map tokens no seed controls. Internal. */
 export const fixedMapTokens: Readonly<
   Pick<MapToken, 'colorBgMask' | 'colorWhite'>
@@ -156,3 +232,37 @@ export const fixedMapTokens: Readonly<
   colorBgMask: palette.alpha.digitalCharcoal900a50,
   colorWhite: palette.monotone.white,
 };
+
+/** The motion durations. Internal. */
+export type MotionTokens = Pick<
+  MapToken,
+  'motionDurationFast' | 'motionDurationMid' | 'motionDurationSlow'
+>;
+
+/**
+ * `map` with every motion duration at 0 when `motion` is false. It runs after the theme's
+ * algorithms and before map overrides, so an explicit duration still applies, as in the
+ * reference model. Internal.
+ */
+export function applyMotionSwitch(map: MapToken): MapToken {
+  return map.motion === false
+    ? {
+        ...map,
+        motionDurationFast: 0,
+        motionDurationMid: 0,
+        motionDurationSlow: 0,
+      }
+    : map;
+}
+
+/** Motion durations in ms, from `motionBase` and `motionUnit` as the reference model derives them. Internal. */
+export function motionTokens({
+  motionBase,
+  motionUnit,
+}: SeedToken): MotionTokens {
+  return {
+    motionDurationFast: motionBase + motionUnit,
+    motionDurationMid: motionBase + motionUnit * 2,
+    motionDurationSlow: motionBase + motionUnit * 3,
+  };
+}

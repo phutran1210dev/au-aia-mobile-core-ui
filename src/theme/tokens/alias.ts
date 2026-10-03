@@ -1,3 +1,4 @@
+import { typography } from '../typography';
 import { resolveReferences, type ReferenceTable } from './references';
 import type { AliasToken, MapToken } from './types';
 
@@ -5,9 +6,10 @@ type AliasOnlyToken = Omit<AliasToken, keyof MapToken>;
 
 /**
  * Each alias token as a reference to a map token. colorBgContainerDisabled references
- * colorBgLayout until fill tokens exist (see `AliasToken`).
+ * colorBgLayout until fill tokens exist, and fontWeightStrong reads its Qi weight directly,
+ * as the reference model keeps it a constant (see `AliasToken`).
  */
-const aliasReferences: ReferenceTable<keyof AliasOnlyToken, MapToken> = {
+const aliasReferences: ReferenceTable<AliasOnlyToken, MapToken> = {
   colorTextDisabled: (map) => map.colorTextQuaternary,
   colorTextPlaceholder: (map) => map.colorTextQuaternary,
   colorTextHeading: (map) => map.colorText,
@@ -20,6 +22,7 @@ const aliasReferences: ReferenceTable<keyof AliasOnlyToken, MapToken> = {
   controlItemBgActive: (map) => map.colorPrimaryBg,
   controlItemBgActiveHover: (map) => map.colorPrimaryBgHover,
   colorBgContainerDisabled: (map) => map.colorBgLayout,
+  fontWeightStrong: () => typography.weight.bodyStrong1,
 };
 
 /** Resolves every alias token against `map`. Internal. */

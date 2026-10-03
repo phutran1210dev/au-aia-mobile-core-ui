@@ -1,17 +1,21 @@
 import { describe, expect, it, jest } from '@jest/globals';
 import { render, renderHook, screen } from '@testing-library/react-native';
 import { memo } from 'react';
-import { View } from 'react-native';
+import { Text, View } from 'react-native';
 
 import {
   ConfigProvider,
   createStyles,
   theme,
+  type FontWeight,
   type ThemeConfig,
 } from '../../index';
 import { figmaValue } from '../__fixtures__/figma';
 import { withProvider } from '../__fixtures__/providers';
-import { referenceDerivedFamilies } from '../__fixtures__/reference';
+import {
+  referenceDerivedFamilies,
+  referenceDerivedTypography,
+} from '../__fixtures__/reference';
 
 const useButtonStyles = createStyles(
   (token) => ({
@@ -114,6 +118,49 @@ describe('createStyles', () => {
     await screen.rerender(tree('medium'));
     expect(factory).toHaveBeenCalledTimes(2);
     expect(screen.getByTestId('box')).toHaveStyle({ padding: 8 });
+  });
+});
+
+describe('typography in styles', () => {
+  const useParagraphStyles = createStyles(
+    (token) => ({
+      paragraph: {
+        fontFamily: token.fontFamily,
+        fontSize: token.fontSize,
+        lineHeight: token.fontHeight,
+        fontWeight: token.fontWeightStrong,
+      },
+    }),
+    { component: 'Typography' }
+  );
+
+  function Paragraph() {
+    const styles = useParagraphStyles();
+    return <Text style={styles.paragraph}>Your next check-up</Text>;
+  }
+
+  it('renders body text with the Qi type scale by default', async () => {
+    await render(<Paragraph />);
+    expect(screen.getByText('Your next check-up')).toHaveStyle({
+      fontFamily: String(figmaValue('fontFamily')),
+      fontSize: Number(figmaValue('fontSize')),
+      lineHeight: Number(figmaValue('fontHeight')),
+      fontWeight: figmaValue('fontWeightStrong') as FontWeight,
+    });
+  });
+
+  it('regenerates the type scale from a component fontSize with algorithm: true', async () => {
+    await render(<Paragraph />, {
+      wrapper: withProvider({
+        theme: {
+          components: { Typography: { fontSize: 16, algorithm: true } },
+        },
+      }),
+    });
+    expect(screen.getByText('Your next check-up')).toHaveStyle({
+      fontSize: referenceDerivedTypography.fontSize,
+      lineHeight: referenceDerivedTypography.fontHeight,
+    });
   });
 });
 

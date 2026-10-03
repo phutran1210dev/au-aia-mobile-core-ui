@@ -1,15 +1,18 @@
-/** A table of token references: each key reads its value from a source token. Internal. */
-export type ReferenceTable<K extends string, S> = {
-  readonly [P in K]: (source: S) => string;
+/**
+ * A table of token references: each key of `T` reads its value from a source token `S`.
+ * Internal.
+ */
+export type ReferenceTable<T, S> = {
+  readonly [P in keyof T]-?: (source: S) => T[P];
 };
 
 /** Resolves every reference in `table` against `source`. Internal. */
-export function resolveReferences<K extends string, S>(
-  table: ReferenceTable<K, S>,
+export function resolveReferences<T, S>(
+  table: ReferenceTable<T, S>,
   source: S
-): Record<K, string> {
-  const resolved = {} as Record<K, string>;
-  for (const key of Object.keys(table) as K[]) {
+): T {
+  const resolved = {} as T;
+  for (const key of Object.keys(table) as (keyof T)[]) {
     resolved[key] = table[key](source);
   }
   return resolved;

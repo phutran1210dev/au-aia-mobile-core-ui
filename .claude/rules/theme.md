@@ -21,9 +21,12 @@ src/
     palette/             Qi values, INTERNAL. One file per Qi group: monotone, primary,
                          secondary, tertiary, semantic (Qi's group name, not semantic
                          tokens), alpha; ungrouped.ts for light green. index.ts builds `palette`
+    typography/          Qi `AIA Typography` values (EN, body and Mobile), INTERNAL like the palette
     tokens/              types.ts (public token interfaces), seed.ts, map.ts (slots,
-                         colorFamilies), alias.ts, semantic.ts, references.ts
-    algorithms/          default.ts, generatePalette.ts (dark.ts, compact.ts once Figma has values)
+                         colorFamilies, Figma font tokens), alias.ts, semantic.ts,
+                         references.ts, platformFonts(.ios).ts (system families per platform)
+    algorithms/          default.ts, generatePalette.ts, generateFontTokens.ts (dark.ts,
+                         compact.ts in Part 4)
     config-provider/     ConfigProvider.tsx, context.ts (two contexts), useConfig.ts
     resolver.ts          the one pure resolver: config merge, token and component caches
     hooks.ts             useToken; useComponentToken (internal)
@@ -65,8 +68,9 @@ const t = theme.getDesignToken({ token: { colorPrimary: '#RRGGBB' } });
 ```
 
 - `componentSize` is `'small' | 'medium' | 'large'`.
-- Exported types: `ThemeConfig`, `SeedToken`, `MapToken`, `AliasToken`, `SemanticColorToken`, `GlobalToken`, plus prop types such as `ConfigProviderProps`.
-- `SeedToken` ⊂ `MapToken` ⊂ `AliasToken`. `GlobalToken` is `AliasToken & SemanticColorToken` plus the augmentable custom-token interface. `ThemeConfig['token']` is `Partial<GlobalToken>`.
+- Exported types: `ThemeConfig`, `SeedToken`, `MapToken`, `AliasToken`, `SemanticColorToken`, `SemanticTypographyToken`, `GlobalToken`, the value types `FontWeight` and `CubicBezier`, plus prop types such as `ConfigProviderProps`.
+- `SeedToken` ⊂ `MapToken` ⊂ `AliasToken`. `GlobalToken` is `AliasToken & SemanticColorToken & SemanticTypographyToken` plus the augmentable custom-token interface. `ThemeConfig['token']` is `Partial<GlobalToken>`.
+- The resolver never imports `react-native` values. Values that differ by platform go in `.ios.ts` files, as `tokens/platformFonts.ios.ts` does. bob leaves those imports without a `.js` extension so Metro can pick the platform file, so plain Node cannot load the built ESM resolver; the token export in Part 5 needs a CommonJS build target or a resolve hook.
 - Interfaces that apps may augment are declared with `interface`, never `type`.
 - Never export the palette, resolver internals or React contexts.
 

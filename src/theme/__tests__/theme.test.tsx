@@ -10,10 +10,17 @@ import {
   type MappingAlgorithm,
   type ThemeConfig,
 } from '../../index';
-import { figmaValue, tokenFixtures } from '../__fixtures__/figma';
+import {
+  figmaValue,
+  tokenFixtures,
+  typographyFixtures,
+} from '../__fixtures__/figma';
 import {
   referenceDerivedFamilies,
+  referenceDerivedMotion,
   referenceDerivedNeutrals,
+  referenceDerivedTypography,
+  referenceFontHeights,
 } from '../__fixtures__/reference';
 import { createTokenProbes, withProvider } from '../__fixtures__/providers';
 
@@ -105,6 +112,71 @@ describe('seed override (required test 2)', () => {
   });
 });
 
+describe('typography seed override', () => {
+  it('regenerates font sizes and line heights as the reference model does', async () => {
+    const { result } = await renderHook(() => theme.useToken(), {
+      wrapper: withProvider({ theme: { token: { fontSize: 16 } } }),
+    });
+    expect(result.current.token).toMatchObject(referenceDerivedTypography);
+  });
+
+  it('keeps the semantic typography and every color at their Figma values', () => {
+    const token: Record<string, unknown> = {
+      ...theme.getDesignToken({ token: { fontSize: 16 } }),
+    };
+    const regenerated = new Set(Object.keys(referenceDerivedTypography));
+    for (const { name, value } of typographyFixtures) {
+      if (!regenerated.has(name)) {
+        expect({ name, value: token[name] }).toEqual({ name, value });
+      }
+    }
+    for (const { name, hex } of tokenFixtures) {
+      expect({ name, value: token[name] }).toEqual({ name, value: hex });
+    }
+  });
+
+  it.each(referenceFontHeights)(
+    'keeps fontHeight* in step with map overrides: $token',
+    ({ token, expected }) => {
+      expect(theme.getDesignToken({ token })).toMatchObject(expected);
+    }
+  );
+
+  it('treats a fontSize equal to its default as not overridden', () => {
+    expect(theme.getDesignToken({ token: { fontSize: 14 } })).toBe(
+      theme.getDesignToken({ token: { fontSize: 14 } })
+    );
+    expect(theme.getDesignToken({ token: { fontSize: 14 } })).toEqual(
+      theme.getDesignToken()
+    );
+  });
+});
+
+describe('motion and line seeds', () => {
+  it('derives the motion durations from motionUnit and motionBase', () => {
+    const { token, expected } = referenceDerivedMotion.scaled;
+    expect(theme.getDesignToken({ token })).toMatchObject(expected);
+  });
+
+  it('sets every duration to 0 with motion: false', async () => {
+    const { token, expected } = referenceDerivedMotion.off;
+    const { result } = await renderHook(() => theme.useToken(), {
+      wrapper: withProvider({ theme: { token } }),
+    });
+    expect(result.current.token).toMatchObject(expected);
+  });
+
+  it('still applies an explicit duration override with motion: false', () => {
+    const { token, expected } = referenceDerivedMotion.offWithOverride;
+    expect(theme.getDesignToken({ token })).toMatchObject(expected);
+  });
+
+  it('derives lineWidthBold from lineWidth', () => {
+    const { token, expected } = referenceDerivedMotion.lineWidth;
+    expect(theme.getDesignToken({ token })).toMatchObject(expected);
+  });
+});
+
 describe('map and semantic overrides (required test 3)', () => {
   it('lets a semantic override win without leaking to siblings, parents or other subtrees', async () => {
     const { seen, Probe } = createTokenProbes();
@@ -156,6 +228,18 @@ describe('map and semantic overrides (required test 3)', () => {
       },
     });
     expect(token.colorInteractiveActionablePressed).toBe('#111111');
+  });
+
+  it('applies a semantic typography override exactly, leaving its siblings alone', () => {
+    const token = theme.getDesignToken({
+      token: { fontWeightHeadline: 700, letterSpacingHeadline1: 0 },
+    });
+    expect(token.fontWeightHeadline).toBe(700);
+    expect(token.letterSpacingHeadline1).toBe(0);
+    expect(token.fontWeightHeadlineThin).toBe(
+      figmaValue('fontWeightHeadlineThin')
+    );
+    expect(token.fontWeightStrong).toBe(figmaValue('fontWeightStrong'));
   });
 
   it('passes custom keys through untouched', () => {
@@ -214,6 +298,8 @@ describe('getDesignToken (required test 6)', () => {
     ['a seed override', { token: { colorPrimary: '#1677ff' } }],
     ['a map override', { token: { colorPrimaryActive: '#000000' } }],
     ['a semantic override', { token: { colorInteractiveDisabled: '#EEEEEE' } }],
+    ['a typography seed override', { token: { fontSize: 16 } }],
+    ['motion turned off', { token: { motion: false } }],
     [
       'component overrides',
       { components: { Button: { colorPrimary: '#1677ff' } } },

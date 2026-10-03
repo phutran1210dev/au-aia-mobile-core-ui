@@ -127,6 +127,82 @@ export const referenceDerivedFamilies = {
 } as const;
 
 /**
+ * Font sizes and line heights the reference model derives for `{ fontSize: 16 }`
+ * (antd 6.6.5 `theme.getDesignToken`). `fontHeight*` are its rounded px line heights.
+ */
+export const referenceDerivedTypography = {
+  fontSize: 16,
+  fontSizeSM: 14,
+  fontSizeLG: 18,
+  fontSizeXL: 22,
+  fontSizeHeading1: 42,
+  fontSizeHeading2: 34,
+  fontSizeHeading3: 28,
+  fontSizeHeading4: 22,
+  fontSizeHeading5: 18,
+  lineHeight: 1.5,
+  lineHeightSM: 1.5714285714285714,
+  lineHeightLG: 1.4444444444444444,
+  lineHeightHeading1: 1.1904761904761905,
+  lineHeightHeading2: 1.2352941176470589,
+  lineHeightHeading3: 1.2857142857142858,
+  lineHeightHeading4: 1.3636363636363635,
+  lineHeightHeading5: 1.4444444444444444,
+  fontHeight: 24,
+  fontHeightSM: 22,
+  fontHeightLG: 26,
+} as const;
+
+/**
+ * `fontHeight*` after map overrides (antd 6.6.5): they follow an overridden size or line
+ * height, and an explicit `fontHeight` wins.
+ */
+export const referenceFontHeights: readonly {
+  token: Record<string, number>;
+  expected: Record<string, number>;
+}[] = [
+  { token: { lineHeight: 1.5 }, expected: { fontHeight: 21 } },
+  { token: { fontSizeLG: 18 }, expected: { fontHeightLG: 27 } },
+  { token: { lineHeight: 1.5, fontHeight: 30 }, expected: { fontHeight: 30 } },
+];
+
+/**
+ * Motion and line tokens the reference model derives (antd 6.6.5), in ms here. For
+ * `{ motionUnit: 0.2, motionBase: 0.1 }` it returns `0.3s`, `0.5s` and `0.7s`; for
+ * `{ motion: false }` it returns `0s` for all three, unless a duration is overridden too.
+ */
+export const referenceDerivedMotion = {
+  scaled: {
+    token: { motionUnit: 200, motionBase: 100 },
+    expected: {
+      motionDurationFast: 300,
+      motionDurationMid: 500,
+      motionDurationSlow: 700,
+    },
+  },
+  off: {
+    token: { motion: false },
+    expected: {
+      motionDurationFast: 0,
+      motionDurationMid: 0,
+      motionDurationSlow: 0,
+    },
+  },
+  offWithOverride: {
+    token: { motion: false, motionDurationSlow: 500 },
+    expected: {
+      motionDurationFast: 0,
+      motionDurationMid: 0,
+      motionDurationSlow: 500,
+    },
+  },
+  lineWidth: {
+    token: { lineWidth: 2 },
+    expected: { lineWidth: 2, lineWidthBold: 3 },
+  },
+} as const;
+
+/**
  * Neutrals derived from an overridden `colorTextBase` (reference model: alpha of the base)
  * and `colorBgBase` (HSL darken by 0, 4, 15 and 6).
  */

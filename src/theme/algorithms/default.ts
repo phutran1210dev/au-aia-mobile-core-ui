@@ -2,18 +2,21 @@ import {
   colorFamilies,
   familyTokens,
   figmaBgTokens,
+  figmaFontTokens,
   figmaTextTokens,
   fixedMapTokens,
+  motionTokens,
   slotsFromPalette,
   type BgTokens,
   type ColorFamily,
   type PaletteSlots,
   type TextTokens,
 } from '../tokens/map';
-import { defaultSeed } from '../tokens/seed';
+import { defaultSeed, type ColorSeed } from '../tokens/seed';
 import type { MapToken, SeedToken } from '../tokens/types';
 import type { MappingAlgorithm } from '../types';
 import { darken, isSameColor, setAlpha } from '../utils/color';
+import { generateFontTokens } from './generateFontTokens';
 import { generatePalette } from './generatePalette';
 
 /** Alpha of an overridden `colorTextBase` for each text neutral. */
@@ -32,17 +35,27 @@ const bgBaseDarken: Readonly<Record<keyof BgTokens, number>> = {
   colorBorderSecondary: 6,
 };
 
+/** Seeds whose default keeps Figma-tuned map tokens. */
+type FigmaTunedSeed = ColorSeed | 'fontSize';
+
+/** Whether `seed[key]` equals its default. Colors compare by value, not format or case. */
+function keepsDefault(seed: SeedToken, key: FigmaTunedSeed): boolean {
+  return key === 'fontSize'
+    ? seed.fontSize === defaultSeed.fontSize
+    : isSameColor(seed[key], defaultSeed[key]);
+}
+
 /**
- * The Figma value while `seed[key]` equals its default (case and format do not matter);
- * otherwise the value derived from the overridden seed color.
+ * The Figma value while `seed[key]` equals its default; otherwise the value derived from
+ * the overridden seed.
  */
-function figmaUnlessOverridden<T>(
+function figmaUnlessOverridden<K extends FigmaTunedSeed, T>(
   seed: SeedToken,
-  key: keyof SeedToken,
+  key: K,
   figma: T,
-  derive: (color: string) => T
+  derive: (value: SeedToken[K]) => T
 ): T {
-  return isSameColor(seed[key], defaultSeed[key]) ? figma : derive(seed[key]);
+  return keepsDefault(seed, key) ? figma : derive(seed[key]);
 }
 
 function mapValues<K extends string>(
@@ -67,7 +80,9 @@ function slotsFor(family: ColorFamily, seed: SeedToken): PaletteSlots {
  * The default (light) derivation algorithm. A seed equal to its default keeps the
  * Figma-tuned map tokens, so the default theme outputs exactly the Figma values. An
  * overridden seed regenerates its family: seeded colors through `generatePalette`, text
- * neutrals as alphas of `colorTextBase`, background neutrals by darkening `colorBgBase`.
+ * neutrals as alphas of `colorTextBase`, background neutrals by darkening `colorBgBase`,
+ * and font sizes and line heights through `generateFontTokens`. Motion durations and
+ * `lineWidthBold` always follow their seeds, because Figma defines none.
  *
  * The five family lines stay explicit: a loop would need an untyped accumulator and a
  * cast, and would lose the per-family type check.
@@ -85,5 +100,13 @@ export const defaultAlgorithm: MappingAlgorithm = (seed): MapToken => ({
   ...figmaUnlessOverridden(seed, 'colorBgBase', figmaBgTokens, (color) =>
     mapValues(bgBaseDarken, (amount) => darken(color, amount))
   ),
+  ...figmaUnlessOverridden(
+    seed,
+    'fontSize',
+    figmaFontTokens,
+    generateFontTokens
+  ),
+  ...motionTokens(seed),
+  lineWidthBold: seed.lineWidth + 1,
   ...fixedMapTokens,
 });

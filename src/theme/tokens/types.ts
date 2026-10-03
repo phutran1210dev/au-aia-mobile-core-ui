@@ -1,9 +1,26 @@
+import type { TextStyle } from 'react-native';
+
 /**
  * Public token interfaces. Seed, map and alias tokens follow the reference model
- * (docs/tokens.md § Prior art); semantic token names come from DDS `Interactive/*`.
- * Values come from Qi tokens – AIA (node 102-2817).
- * Hex values in `@default` were copied from Figma; docs/tokens.md lists every token.
+ * (docs/tokens.md § Prior art); semantic color names come from DDS `Interactive/*`, and
+ * semantic typography names from Qi `AIA Typography` paths.
+ * Colors come from Qi tokens – AIA (node 102-2817), type from its `AIA Typography` collection.
+ * Values in `@default` were copied from Figma; docs/tokens.md lists every token.
  */
+
+/** A font weight React Native accepts, such as `600`. */
+export type FontWeight = NonNullable<TextStyle['fontWeight']>;
+
+/**
+ * A cubic Bézier easing curve as `[x1, y1, x2, y2]`, ready to spread into
+ * `Easing.bezier(...curve)`.
+ */
+export type CubicBezier = readonly [
+  x1: number,
+  y1: number,
+  x2: number,
+  y2: number,
+];
 
 /**
  * Seed tokens: the design decisions every other color derives from. Overriding a seed
@@ -55,6 +72,135 @@ export interface SeedToken {
    * @default palette.monotone.white = #FFFFFF
    */
   colorBgBase: string;
+
+  /**
+   * Font family of body text: one family name, exactly as the app registers the font.
+   * Apps that register the font under another name override it through `ConfigProvider`.
+   * @figma Qi AIA Typography/Family/body
+   * @default typography.family.body = OpenSans
+   * @interim pending design: the iOS PostScript name and Android file name are not known yet.
+   */
+  fontFamily: string;
+  /**
+   * Font size of body text, in dp. Overriding it regenerates the other font sizes and line
+   * heights with the theme's algorithm.
+   * @figma Qi AIA Typography/Size/body2
+   * @default typography.size.body2 = 14
+   */
+  fontSize: number;
+  /**
+   * Font family of code text: one system monospace family per platform.
+   * @figma none; Figma defines no code font
+   * @default `Menlo` on iOS, `monospace` on Android and web
+   */
+  fontFamilyCode: string;
+
+  /**
+   * Width of borders and dividers, in dp.
+   * @figma none; the reference model's default
+   * @default 1
+   */
+  lineWidth: number;
+  /**
+   * Style of borders and dividers, as React Native's `borderStyle`.
+   * @figma none; the reference model's default
+   * @default 'solid'
+   */
+  lineType: 'solid' | 'dashed' | 'dotted';
+
+  /**
+   * Base `zIndex` of components. React Native's `zIndex` orders siblings only.
+   * @figma none; the reference model's default
+   * @default 0
+   */
+  zIndexBase: number;
+  /**
+   * Base `zIndex` of floating components, such as a popover.
+   * @figma none; the reference model's default
+   * @default 1000
+   */
+  zIndexPopupBase: number;
+
+  /**
+   * Opacity of images. A dark theme may lower it.
+   * @figma none; the reference model's default
+   * @default 1
+   */
+  opacityImage: number;
+
+  /**
+   * Whether components animate. `false` sets the three `motionDuration*` tokens to 0.
+   * @figma none; the reference model's default
+   * @default true
+   */
+  motion: boolean;
+  /**
+   * Step between motion durations, in ms. Overriding it regenerates the durations.
+   * @figma none; the reference model's default (0.1 s)
+   * @default 100
+   */
+  motionUnit: number;
+  /**
+   * Base of motion durations, in ms.
+   * @figma none; the reference model's default
+   * @default 0
+   */
+  motionBase: number;
+  /**
+   * Easing curve that overshoots at the start.
+   * @figma none; the reference model's default
+   * @default [0.71, -0.46, 0.88, 0.6]
+   */
+  motionEaseInBack: CubicBezier;
+  /**
+   * Easing curve that speeds up, then slows down.
+   * @figma none; the reference model's default
+   * @default [0.645, 0.045, 0.355, 1]
+   */
+  motionEaseInOut: CubicBezier;
+  /**
+   * Circular easing curve that speeds up, then slows down.
+   * @figma none; the reference model's default
+   * @default [0.78, 0.14, 0.15, 0.86]
+   */
+  motionEaseInOutCirc: CubicBezier;
+  /**
+   * Quintic easing curve that starts slowly.
+   * @figma none; the reference model's default
+   * @default [0.755, 0.05, 0.855, 0.06]
+   */
+  motionEaseInQuint: CubicBezier;
+  /**
+   * Easing curve that slows down at the end.
+   * @figma none; the reference model's default
+   * @default [0.215, 0.61, 0.355, 1]
+   */
+  motionEaseOut: CubicBezier;
+  /**
+   * Easing curve that overshoots at the end.
+   * @figma none; the reference model's default
+   * @default [0.12, 0.4, 0.29, 1.46]
+   */
+  motionEaseOutBack: CubicBezier;
+  /**
+   * Circular easing curve that slows down at the end.
+   * @figma none; the reference model's default
+   * @default [0.08, 0.82, 0.17, 1]
+   */
+  motionEaseOutCirc: CubicBezier;
+  /**
+   * Quintic easing curve that slows down at the end.
+   * @figma none; the reference model's default
+   * @default [0.23, 1, 0.32, 1]
+   */
+  motionEaseOutQuint: CubicBezier;
+
+  /**
+   * Whether components show a visible outline while focused, such as with a keyboard.
+   * @figma none; the reference model's default
+   * @default true
+   */
+  focusOutline: boolean;
 }
 
 /**
@@ -414,6 +560,153 @@ export interface MapToken extends SeedToken {
    * @default palette.monotone.white = #FFFFFF
    */
   colorWhite: string;
+
+  // Typography: Qi body and Mobile headline sizes, from fontSize. Line heights are ratios of
+  // their font size; fontHeight* hold the dp value React Native's `lineHeight` needs.
+
+  /**
+   * Small body text, such as a caption.
+   * @figma Qi AIA Typography/Size/body3
+   * @default typography.size.body3 = 12
+   */
+  fontSizeSM: number;
+  /**
+   * Large body text, such as a paragraph (DDS Body/Paragraph).
+   * @figma Qi AIA Typography/Size/body1
+   * @default typography.size.body1 = 16
+   */
+  fontSizeLG: number;
+  /**
+   * Extra-large text, such as a small heading. Its line height is `lineHeightHeadline6`.
+   * @figma Qi AIA Typography/Size/Mobile/headline6
+   * @default typography.size.headline6 = 18
+   */
+  fontSizeXL: number;
+  /**
+   * Heading level 1.
+   * @figma Qi AIA Typography/Size/Mobile/headline1
+   * @default typography.size.headline1 = 32
+   */
+  fontSizeHeading1: number;
+  /**
+   * Heading level 2.
+   * @figma Qi AIA Typography/Size/Mobile/headline2
+   * @default typography.size.headline2 = 28
+   */
+  fontSizeHeading2: number;
+  /**
+   * Heading level 3.
+   * @figma Qi AIA Typography/Size/Mobile/headline3
+   * @default typography.size.headline3 = 24
+   */
+  fontSizeHeading3: number;
+  /**
+   * Heading level 4.
+   * @figma Qi AIA Typography/Size/Mobile/headline4
+   * @default typography.size.headline4 = 22
+   */
+  fontSizeHeading4: number;
+  /**
+   * Heading level 5.
+   * @figma Qi AIA Typography/Size/Mobile/headline5
+   * @default typography.size.headline5 = 20
+   */
+  fontSizeHeading5: number;
+  /**
+   * Line height of `fontSize` text as a ratio of the size. React Native needs dp: use
+   * `fontHeight`, or `Math.round(fontSize * lineHeight)`.
+   * @figma Qi AIA Typography/Line height/body2 ÷ Size/body2
+   * @default 20 / 14
+   */
+  lineHeight: number;
+  /**
+   * Line height of `fontSizeSM` text as a ratio of the size.
+   * @figma Qi AIA Typography/Line height/body3 ÷ Size/body3
+   * @default 18 / 12
+   */
+  lineHeightSM: number;
+  /**
+   * Line height of `fontSizeLG` text as a ratio of the size.
+   * @figma Qi AIA Typography/Line height/body1 ÷ Size/body1
+   * @default 24 / 16
+   */
+  lineHeightLG: number;
+  /**
+   * Line height of heading level 1 as a ratio of its size.
+   * @figma Qi AIA Typography/Line height/Mobile/headline1 ÷ Size/Mobile/headline1
+   * @default 40 / 32
+   */
+  lineHeightHeading1: number;
+  /**
+   * Line height of heading level 2 as a ratio of its size.
+   * @figma Qi AIA Typography/Line height/Mobile/headline2 ÷ Size/Mobile/headline2
+   * @default 36 / 28
+   */
+  lineHeightHeading2: number;
+  /**
+   * Line height of heading level 3 as a ratio of its size.
+   * @figma Qi AIA Typography/Line height/Mobile/headline3 ÷ Size/Mobile/headline3
+   * @default 32 / 24
+   */
+  lineHeightHeading3: number;
+  /**
+   * Line height of heading level 4 as a ratio of its size.
+   * @figma Qi AIA Typography/Line height/Mobile/headline4 ÷ Size/Mobile/headline4
+   * @default 30 / 22
+   */
+  lineHeightHeading4: number;
+  /**
+   * Line height of heading level 5 as a ratio of its size.
+   * @figma Qi AIA Typography/Line height/Mobile/headline5 ÷ Size/Mobile/headline5
+   * @default 26 / 20
+   */
+  lineHeightHeading5: number;
+  /**
+   * Line height of `fontSize` text in dp: `Math.round(fontSize * lineHeight)`. It follows
+   * overrides of either token.
+   * @figma Qi AIA Typography/Line height/body2
+   * @default 20
+   */
+  fontHeight: number;
+  /**
+   * Line height of `fontSizeSM` text in dp: `Math.round(fontSizeSM * lineHeightSM)`.
+   * @figma Qi AIA Typography/Line height/body3
+   * @default 18
+   */
+  fontHeightSM: number;
+  /**
+   * Line height of `fontSizeLG` text in dp: `Math.round(fontSizeLG * lineHeightLG)`.
+   * @figma Qi AIA Typography/Line height/body1
+   * @default 24
+   */
+  fontHeightLG: number;
+
+  /**
+   * Width of a bold border, in dp: `lineWidth + 1`.
+   * @figma none; derived as the reference model does
+   * @default 2
+   */
+  lineWidthBold: number;
+
+  /**
+   * Duration of small animations, in ms: `motionBase + motionUnit`. 0 when `motion` is false.
+   * @figma none; derived as the reference model does
+   * @default 100
+   */
+  motionDurationFast: number;
+  /**
+   * Duration of medium animations, in ms: `motionBase + 2 × motionUnit`. 0 when `motion` is false.
+   * @figma none; derived as the reference model does
+   * @default 200
+   */
+  motionDurationMid: number;
+  /**
+   * Duration of large animations, such as a sheet, in ms: `motionBase + 3 × motionUnit`.
+   * 0 when `motion` is false.
+   * @figma none; derived as the reference model does
+   * @default 300
+   */
+  motionDurationSlow: number;
 }
 
 /**
@@ -496,6 +789,13 @@ export interface AliasToken extends MapToken {
    * @interim pending design: no disabled color in DDS.
    */
   colorBgContainerDisabled: string;
+  /**
+   * Weight of emphasized body text. A Figma value, not a reference: the reference model
+   * holds it as a constant too.
+   * @figma Qi AIA Typography/Weight/body/strong1 (semibold)
+   * @default typography.weight.bodyStrong1 = 600
+   */
+  fontWeightStrong: FontWeight;
 }
 
 /**
@@ -595,6 +895,107 @@ export interface SemanticColorToken {
 }
 
 /**
+ * Semantic typography tokens: Qi `AIA Typography` values that have no reference-model name,
+ * such as the headline font. Names follow the Qi path (docs/specs/theme-parity.md, D7):
+ * the style property, then Qi's words, without the `Mobile` and `default` segments.
+ * Each one reads a Qi value; overriding one applies it exactly, and nothing derives from it.
+ */
+export interface SemanticTypographyToken {
+  /**
+   * Font family of headings: one family name, exactly as the app registers the font.
+   * @figma Qi AIA Typography/Family/headline
+   * @default typography.family.headline = AIA Everest
+   * @interim pending design: the iOS PostScript name and Android file name are not known yet.
+   */
+  fontFamilyHeadline: string;
+  /**
+   * Weight of headings.
+   * @figma Qi AIA Typography/Weight/headline/default (medium)
+   * @default typography.weight.headline = 500
+   */
+  fontWeightHeadline: FontWeight;
+  /**
+   * Weight of a light heading.
+   * @figma Qi AIA Typography/Weight/headline/thin (regular)
+   * @default typography.weight.headlineThin = 400
+   */
+  fontWeightHeadlineThin: FontWeight;
+  /**
+   * Weight of body text.
+   * @figma Qi AIA Typography/Weight/body/default (regular)
+   * @default typography.weight.body = 400
+   */
+  fontWeightBody: FontWeight;
+  /**
+   * Weight of strongly emphasized body text, one step above `fontWeightStrong`. The name
+   * keeps Qi's `strong2` so it traces back to the Qi path `Weight/body/strong2`.
+   * @figma Qi AIA Typography/Weight/body/strong2 (bold)
+   * @default typography.weight.bodyStrong2 = 700
+   */
+  fontWeightBodyStrong2: FontWeight;
+  /**
+   * The smallest body text, such as a legal footnote.
+   * @figma Qi AIA Typography/Size/body4
+   * @default typography.size.body4 = 10
+   */
+  fontSizeBody4: number;
+  /**
+   * Line height of `fontSizeBody4` text as a ratio of the size.
+   * @figma Qi AIA Typography/Line height/body4 ÷ Size/body4
+   * @default 14 / 10
+   */
+  lineHeightBody4: number;
+  /**
+   * Line height of `fontSizeXL` text (Qi headline6) as a ratio of the size.
+   * @figma Qi AIA Typography/Line height/Mobile/headline6 ÷ Size/Mobile/headline6
+   * @default 24 / 18
+   */
+  lineHeightHeadline6: number;
+  /**
+   * Letter spacing of body text, in dp.
+   * @figma Qi AIA Typography/Letter spacing/body
+   * @default typography.letterSpacing.body = 0
+   */
+  letterSpacingBody: number;
+  /**
+   * Letter spacing of heading level 1, in dp.
+   * @figma Qi AIA Typography/Letter spacing/Mobile/headline1
+   * @default typography.letterSpacing.headline1 = -0.5
+   */
+  letterSpacingHeadline1: number;
+  /**
+   * Letter spacing of heading level 2, in dp.
+   * @figma Qi AIA Typography/Letter spacing/Mobile/headline2
+   * @default typography.letterSpacing.headline2 = 0
+   */
+  letterSpacingHeadline2: number;
+  /**
+   * Letter spacing of heading level 3, in dp.
+   * @figma Qi AIA Typography/Letter spacing/Mobile/headline3
+   * @default typography.letterSpacing.headline3 = 0
+   */
+  letterSpacingHeadline3: number;
+  /**
+   * Letter spacing of heading level 4, in dp.
+   * @figma Qi AIA Typography/Letter spacing/Mobile/headline4
+   * @default typography.letterSpacing.headline4 = 0
+   */
+  letterSpacingHeadline4: number;
+  /**
+   * Letter spacing of heading level 5, in dp.
+   * @figma Qi AIA Typography/Letter spacing/Mobile/headline5
+   * @default typography.letterSpacing.headline5 = 0
+   */
+  letterSpacingHeadline5: number;
+  /**
+   * Letter spacing of `fontSizeXL` text (Qi headline6), in dp.
+   * @figma Qi AIA Typography/Letter spacing/Mobile/headline6
+   * @default typography.letterSpacing.headline6 = 0
+   */
+  letterSpacingHeadline6: number;
+}
+
+/**
  * App-defined tokens. Add yours by module augmentation; names must not shadow library tokens.
  *
  * @example
@@ -611,4 +1012,8 @@ export interface CustomToken {}
  * This is what `theme.useToken()` and `theme.getDesignToken()` return.
  */
 export interface GlobalToken
-  extends AliasToken, SemanticColorToken, CustomToken {}
+  extends
+    AliasToken,
+    SemanticColorToken,
+    SemanticTypographyToken,
+    CustomToken {}

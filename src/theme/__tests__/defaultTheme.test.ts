@@ -1,10 +1,14 @@
 import { describe, expect, it } from '@jest/globals';
 
 import { theme } from '../../index';
+import { platformDefaults, referenceDefaults } from '../__fixtures__/defaults';
 import {
   ddsInteractive,
   qiPrimitives,
+  qiTypography,
+  qiWeightNumbers,
   tokenFixtures,
+  typographyFixtures,
 } from '../__fixtures__/figma';
 import { palette } from '../palette';
 
@@ -56,6 +60,17 @@ describe('token fixtures', () => {
       expect({ name, hex: source?.toUpperCase() }).toEqual({ name, hex });
     }
   });
+
+  it('copy their typography value from the Qi variable they name', () => {
+    for (const { name, qi, per, value } of typographyFixtures) {
+      const source = qiTypography[qi];
+      const expected =
+        per !== undefined
+          ? Number(source) / Number(qiTypography[per])
+          : (qiWeightNumbers[String(source)] ?? source);
+      expect({ name, value: expected }).toEqual({ name, value });
+    }
+  });
 });
 
 describe('default theme', () => {
@@ -67,8 +82,66 @@ describe('default theme', () => {
     }
   });
 
-  it('has a Figma fixture for every token it outputs', () => {
-    const fixtureNames = new Set(tokenFixtures.map(({ name }) => name));
+  it('equals the Qi value of every typography token', () => {
+    for (const { name, value } of typographyFixtures) {
+      expect({ name, value: token[name] }).toEqual({ name, value });
+    }
+  });
+
+  it('keeps the Figma px when a line-height ratio is applied to its size', () => {
+    const pairs = [
+      ['fontSize', 'lineHeight', 'Line height/body2'],
+      ['fontSizeSM', 'lineHeightSM', 'Line height/body3'],
+      ['fontSizeLG', 'lineHeightLG', 'Line height/body1'],
+      [
+        'fontSizeHeading1',
+        'lineHeightHeading1',
+        'Line height/Mobile/headline1',
+      ],
+      [
+        'fontSizeHeading2',
+        'lineHeightHeading2',
+        'Line height/Mobile/headline2',
+      ],
+      [
+        'fontSizeHeading3',
+        'lineHeightHeading3',
+        'Line height/Mobile/headline3',
+      ],
+      [
+        'fontSizeHeading4',
+        'lineHeightHeading4',
+        'Line height/Mobile/headline4',
+      ],
+      [
+        'fontSizeHeading5',
+        'lineHeightHeading5',
+        'Line height/Mobile/headline5',
+      ],
+      ['fontSizeXL', 'lineHeightHeadline6', 'Line height/Mobile/headline6'],
+      ['fontSizeBody4', 'lineHeightBody4', 'Line height/body4'],
+    ] as const;
+    for (const [size, ratio, qi] of pairs) {
+      const px = Math.round(Number(token[size]) * Number(token[ratio]));
+      expect({ ratio, px }).toEqual({ ratio, px: qiTypography[qi] });
+    }
+  });
+
+  it('takes the reference default of every token Figma does not define', () => {
+    for (const [name, value] of Object.entries({
+      ...referenceDefaults,
+      ...platformDefaults,
+    })) {
+      expect({ name, value: token[name] }).toEqual({ name, value });
+    }
+  });
+
+  it('has a fixture for every token it outputs', () => {
+    const fixtureNames = new Set([
+      ...[...tokenFixtures, ...typographyFixtures].map(({ name }) => name),
+      ...Object.keys(referenceDefaults),
+      ...Object.keys(platformDefaults),
+    ]);
     expect(
       Object.keys(token).filter((name) => !fixtureNames.has(name))
     ).toEqual([]);

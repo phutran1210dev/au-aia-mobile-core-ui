@@ -18,7 +18,7 @@ Load `/react-native-testing` before writing tests.
 ## Rules
 
 - Test through the public API (`src/index.tsx`) unless the subject is internal: palette, color utils, resolver.
-- Token values: assert against an explicit Figma fixture holding code name, Figma path and the hex copied from Figma. No snapshots for token values, because a snapshot cannot show where a value came from.
+- Token values: assert against an explicit fixture that shows where each value came from. `__fixtures__/figma.ts` holds Figma values (code name, Figma path, value copied from Figma); `__fixtures__/defaults.ts` holds the reference model's defaults for tokens Figma does not define; `__fixtures__/reference.ts` holds reference-library output for overrides. No snapshots for token values, because a snapshot cannot show where a value came from.
 - Hooks: `renderHook(() => theme.useToken(), { wrapper })` with a `ConfigProvider` wrapper.
 - Components: query by role or text, press with `userEvent`, assert with `toHaveStyle`.
 - A bug fix starts with a failing test.

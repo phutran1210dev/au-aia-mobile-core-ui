@@ -1,25 +1,26 @@
-# Color tokens
+# Design tokens
 
-This page lists every public color token of `@au-aia/mobile-core-ui`: its code name, the Figma source of its default, the default value, and what it references. Read it with `GLOSSARY.md` for the terms and `.claude/rules/tokens-naming.md` for the rules. [Prior art](#prior-art) credits the token model this library follows.
+This page lists every public token of `@au-aia/mobile-core-ui`: its code name, the Figma source of its default, the default value, and what it references. Read it with `GLOSSARY.md` for the terms and `.claude/rules/tokens-naming.md` for the rules. [Prior art](#prior-art) credits the token model this library follows, and [docs/specs/theme-parity.md](specs/theme-parity.md) tracks which of its tokens exist yet.
 
-All hex values were read from Figma with the Figma MCP on 2026-10-03:
+All values were read from Figma with the Figma MCP on 2026-10-03:
 
-- **Qi**: [Qi tokens – AIA](https://www.figma.com/design/HxDGXJYqeMwdxg0pJNyrQf/Qi-tokens-%E2%80%93-AIA?node-id=102-2817&m=dev), node 102-2817, "AIA primitives colours". Source of truth for palette values and family names.
+- **Qi**: [Qi tokens – AIA](https://www.figma.com/design/HxDGXJYqeMwdxg0pJNyrQf/Qi-tokens-%E2%80%93-AIA?node-id=102-2817&m=dev), node 102-2817, "AIA primitives colours", and its `AIA Typography` variable collection (mode `EN`). Source of truth for palette values, family names and typography.
 - **DDS**: [DDS AU v2.0.11](https://www.figma.com/design/MJBaY5fhgct1a5goBK8XLw/DDS-AU-v2.0.11?node-id=15329-57416&m=dev), interactive node 15329-57416. Source of the interactive roles.
 
 Tokens marked _interim_ carry `@interim pending design` in their JSDoc. Their names stay stable; only their references may change once design decides. See [Open questions for design](#open-questions-for-design).
 
 ## How the layers fit together
 
-| Layer    | Public | Names from      | Default comes from                                     |
-| -------- | ------ | --------------- | ------------------------------------------------------ |
-| Palette  | No     | Qi              | Raw Qi hex                                             |
-| Seed     | Yes    | Reference model | A palette step                                         |
-| Map      | Yes    | Reference model | Hand-mapped palette steps; the algorithm on override   |
-| Alias    | Yes    | Reference model | A reference to a map token                             |
-| Semantic | Yes    | DDS             | A reference to a map or alias token, or a palette step |
+| Layer      | Public | Names from      | Default comes from                                                |
+| ---------- | ------ | --------------- | ----------------------------------------------------------------- |
+| Palette    | No     | Qi              | Raw Qi hex                                                        |
+| Typography | No     | Qi              | Raw Qi `AIA Typography` values                                    |
+| Seed       | Yes    | Reference model | A palette step, a Qi typography value, or the reference default   |
+| Map        | Yes    | Reference model | Hand-mapped Figma values; the algorithm on override               |
+| Alias      | Yes    | Reference model | A reference to a map token                                        |
+| Semantic   | Yes    | DDS, Qi         | A reference to a map or alias token, a palette step or a Qi value |
 
-With no overrides, every token equals its Figma value below. Overriding a seed regenerates that seed's family with the derivation algorithm. Overriding a map, alias or semantic token sets that exact value, and every token that references it follows.
+With no overrides, every token equals its Figma value below; a token Figma does not define takes the reference model's default. Overriding a seed regenerates what derives from it with the derivation algorithm. Overriding a map, alias or semantic token sets that exact value, and every token that references it follows.
 
 ## Seed tokens
 
@@ -181,6 +182,103 @@ Every semantic token is interim (Checkpoint 2, decision 1): Qi has no semantic t
 
 `colorInteractiveHighlighted` is not the selected state. There is no selected or focused token yet.
 
+## Typography tokens
+
+Qi's `AIA Typography` collection holds the values, in mode `EN`. The library takes its body and Mobile headline variables; Desktop sizes stay out. Line heights are ratios of their font size, as in the reference model, and `fontHeight*` hold the dp value React Native's `lineHeight` needs. For every size and ratio pair, `Math.round(size * ratio)` gives the Qi px back.
+
+### Typography seed, map and alias tokens
+
+| Code name            | Layer | Figma path (Qi `AIA Typography`)                         | Default                                  |
+| -------------------- | ----- | -------------------------------------------------------- | ---------------------------------------- |
+| `fontFamily`         | Seed  | `Family/body`                                            | `OpenSans`, interim                      |
+| `fontSize`           | Seed  | `Size/body2`                                             | `14`                                     |
+| `fontSizeSM`         | Map   | `Size/body3`                                             | `12`                                     |
+| `fontSizeLG`         | Map   | `Size/body1`                                             | `16`                                     |
+| `fontSizeXL`         | Map   | `Size/Mobile/headline6`                                  | `18`                                     |
+| `fontSizeHeading1`   | Map   | `Size/Mobile/headline1`                                  | `32`                                     |
+| `fontSizeHeading2`   | Map   | `Size/Mobile/headline2`                                  | `28`                                     |
+| `fontSizeHeading3`   | Map   | `Size/Mobile/headline3`                                  | `24`                                     |
+| `fontSizeHeading4`   | Map   | `Size/Mobile/headline4`                                  | `22`                                     |
+| `fontSizeHeading5`   | Map   | `Size/Mobile/headline5`                                  | `20`                                     |
+| `lineHeight`         | Map   | `Line height/body2` ÷ `Size/body2`                       | `20 / 14`                                |
+| `lineHeightSM`       | Map   | `Line height/body3` ÷ `Size/body3`                       | `18 / 12`                                |
+| `lineHeightLG`       | Map   | `Line height/body1` ÷ `Size/body1`                       | `24 / 16`                                |
+| `lineHeightHeading1` | Map   | `Line height/Mobile/headline1` ÷ `Size/Mobile/headline1` | `40 / 32`                                |
+| `lineHeightHeading2` | Map   | `Line height/Mobile/headline2` ÷ `Size/Mobile/headline2` | `36 / 28`                                |
+| `lineHeightHeading3` | Map   | `Line height/Mobile/headline3` ÷ `Size/Mobile/headline3` | `32 / 24`                                |
+| `lineHeightHeading4` | Map   | `Line height/Mobile/headline4` ÷ `Size/Mobile/headline4` | `30 / 22`                                |
+| `lineHeightHeading5` | Map   | `Line height/Mobile/headline5` ÷ `Size/Mobile/headline5` | `26 / 20`                                |
+| `fontHeight`         | Map   | `Line height/body2`                                      | `20`                                     |
+| `fontHeightSM`       | Map   | `Line height/body3`                                      | `18`                                     |
+| `fontHeightLG`       | Map   | `Line height/body1`                                      | `24`                                     |
+| `fontWeightStrong`   | Alias | `Weight/body/strong1` (semibold)                         | `600`                                    |
+| `fontFamilyCode`     | Seed  | none; a system monospace family                          | iOS `Menlo`, Android and web `monospace` |
+
+Overriding `fontSize` regenerates the other sizes and line heights with the reference model's formula. The `fontHeight*` tokens follow overrides of their size or ratio, and an explicit `fontHeight*` override wins.
+
+`fontFamily` is interim. React Native needs the exact name the app registers: the iOS PostScript name and the Android font file name, which are not known yet. An app that registers the font under another name overrides `fontFamily` and `fontFamilyHeadline` through `ConfigProvider`. A family the app has not registered falls back to the system font; iOS logs it, Android does not.
+
+### Semantic typography tokens
+
+These Qi values have no reference-model name. Each name is the style property followed by Qi's words, without the `Mobile` and `default` segments.
+
+| Code name                | Figma path (Qi `AIA Typography`)                         | Default                |
+| ------------------------ | -------------------------------------------------------- | ---------------------- |
+| `fontFamilyHeadline`     | `Family/headline`                                        | `AIA Everest`, interim |
+| `fontWeightHeadline`     | `Weight/headline/default` (medium)                       | `500`                  |
+| `fontWeightHeadlineThin` | `Weight/headline/thin` (regular)                         | `400`                  |
+| `fontWeightBody`         | `Weight/body/default` (regular)                          | `400`                  |
+| `fontWeightBodyStrong2`  | `Weight/body/strong2` (bold)                             | `700`                  |
+| `fontSizeBody4`          | `Size/body4`                                             | `10`                   |
+| `lineHeightBody4`        | `Line height/body4` ÷ `Size/body4`                       | `14 / 10`              |
+| `lineHeightHeadline6`    | `Line height/Mobile/headline6` ÷ `Size/Mobile/headline6` | `24 / 18`              |
+| `letterSpacingBody`      | `Letter spacing/body`                                    | `0`                    |
+| `letterSpacingHeadline1` | `Letter spacing/Mobile/headline1`                        | `-0.5`                 |
+| `letterSpacingHeadline2` | `Letter spacing/Mobile/headline2`                        | `0`                    |
+| `letterSpacingHeadline3` | `Letter spacing/Mobile/headline3`                        | `0`                    |
+| `letterSpacingHeadline4` | `Letter spacing/Mobile/headline4`                        | `0`                    |
+| `letterSpacingHeadline5` | `Letter spacing/Mobile/headline5`                        | `0`                    |
+| `letterSpacingHeadline6` | `Letter spacing/Mobile/headline6`                        | `0`                    |
+
+`lineHeightHeadline6` and `letterSpacingHeadline6` pair with `fontSizeXL`, which holds Qi's headline6 size. Overriding `fontSize` leaves these tokens at their Qi values.
+
+## Motion tokens
+
+Figma defines no motion, so every value is the reference model's default, in ms instead of seconds. Curves are `[x1, y1, x2, y2]` arrays for `Easing.bezier(...curve)`.
+
+| Code name             | Layer | Default                      | Derived from                  |
+| --------------------- | ----- | ---------------------------- | ----------------------------- |
+| `motion`              | Seed  | `true`                       |                               |
+| `motionUnit`          | Seed  | `100`                        |                               |
+| `motionBase`          | Seed  | `0`                          |                               |
+| `motionDurationFast`  | Map   | `100`                        | `motionBase + motionUnit`     |
+| `motionDurationMid`   | Map   | `200`                        | `motionBase + 2 × motionUnit` |
+| `motionDurationSlow`  | Map   | `300`                        | `motionBase + 3 × motionUnit` |
+| `motionEaseInBack`    | Seed  | `[0.71, -0.46, 0.88, 0.6]`   |                               |
+| `motionEaseInOut`     | Seed  | `[0.645, 0.045, 0.355, 1]`   |                               |
+| `motionEaseInOutCirc` | Seed  | `[0.78, 0.14, 0.15, 0.86]`   |                               |
+| `motionEaseInQuint`   | Seed  | `[0.755, 0.05, 0.855, 0.06]` |                               |
+| `motionEaseOut`       | Seed  | `[0.215, 0.61, 0.355, 1]`    |                               |
+| `motionEaseOutBack`   | Seed  | `[0.12, 0.4, 0.29, 1.46]`    |                               |
+| `motionEaseOutCirc`   | Seed  | `[0.08, 0.82, 0.17, 1]`      |                               |
+| `motionEaseOutQuint`  | Seed  | `[0.23, 1, 0.32, 1]`         |                               |
+
+`motion: false` sets the three durations to 0 after the algorithm runs. An explicit duration override still applies, as in the reference model.
+
+## Line, layer and opacity tokens
+
+Figma defines none of these, so each takes the reference model's default.
+
+| Code name         | Layer | Default   | Derived from    |
+| ----------------- | ----- | --------- | --------------- |
+| `lineWidth`       | Seed  | `1`       |                 |
+| `lineType`        | Seed  | `'solid'` |                 |
+| `lineWidthBold`   | Map   | `2`       | `lineWidth + 1` |
+| `zIndexBase`      | Seed  | `0`       |                 |
+| `zIndexPopupBase` | Seed  | `1000`    |                 |
+| `opacityImage`    | Seed  | `1`       |                 |
+| `focusOutline`    | Seed  | `true`    |                 |
+
 ## Component tokens (experimental)
 
 `theme.components.<Name>` overrides apply to one component's token, and a component reads that token through `createStyles(factory, { component: '<Name>' })`.
@@ -233,6 +331,15 @@ Other naming issues:
 - `Primary/Red/100` is `#E00842` in the DDS primary node but `#D31145` in the secondary and interactive nodes. `#E00842` is used.
 - In Qi, the swatch layer `Alpha/monotone-white15` shows the variable `$monotone-whitea15`, and `Alpha/digitalcharcoal-900a00` is the only alpha variable without a `$` code syntax.
 
+Typography differs between Qi and DDS text styles too. Qi values win:
+
+| What                | Qi                                                 | DDS                                                                                     | Used   |
+| ------------------- | -------------------------------------------------- | --------------------------------------------------------------------------------------- | ------ |
+| Body letter spacing | `Letter spacing/body` is 0                         | Body styles use 0.1                                                                     | 0      |
+| Body family name    | `Family/body` is `OpenSans`                        | Text styles name `Open Sans`                                                            | Qi     |
+| Heading numbering   | Desktop `headline4` is 28/36, `headline5` is 24/32 | Desktop `Heading 4` is 24/32                                                            | Qi     |
+| Weight binding      | none                                               | `EN/Desktop/Body/Body 2 Regular` binds `Typography/Weight/medium` (500) but renders 400 | unused |
+
 ## Values dropped from the palette
 
 These exist only in DDS, with no Qi step, so the palette leaves them out (Checkpoint 2, decision 5):
@@ -244,7 +351,7 @@ These exist only in DDS, with no Qi step, so the palette leaves them out (Checkp
 
 ## Prior art
 
-The seed, map and alias token model, the palette slots and the derivation algorithm follow [Ant Design's theme system](https://ant.design/docs/react/customize-theme#theme) and its [ConfigProvider](https://ant.design/components/config-provider#config); the rest of this page calls it the reference model. `generatePalette` and `utils/color.ts` port code from `@ant-design/colors` and `@ant-design/fast-color` under the MIT License, and the notices stay in those files. Tests compare the output with the reference libraries through `src/theme/__fixtures__/reference.ts`.
+The seed, map and alias token model, the palette slots and the derivation algorithm follow [Ant Design's theme system](https://ant.design/docs/react/customize-theme#theme) and its [ConfigProvider](https://ant.design/components/config-provider#config); the rest of this page calls it the reference model. `generatePalette`, `generateFontTokens` and `utils/color.ts` port code from `@ant-design/colors`, `antd` and `@ant-design/fast-color` under the MIT License, and the notices stay in those files. Tests compare the output with the reference libraries through `src/theme/__fixtures__/reference.ts` and `src/theme/__fixtures__/defaults.ts`.
 
 This library differs from the reference model in these ways:
 
@@ -252,7 +359,14 @@ This library differs from the reference model in these ways:
 - **`colorBgContainerDisabled`**: it references `colorBgLayout`, because its source in the reference model, `colorFillTertiary`, is not defined yet.
 - **Component overrides**: with `algorithm: false`, alias and semantic tokens that reference an overridden key re-resolve. The reference model applies component keys without re-resolving.
 - **`componentSize`**: `'small' | 'medium' | 'large'`, where the reference model says `middle`.
-- **Not defined yet**: `colorFill*`, `colorBgElevated`, `colorBgSpotlight`, `colorBgSolid*`, `colorBgBlur`, `colorSplit`, `colorLink*`, `colorBorderDisabled`, `colorErrorBgActive`, `colorErrorBgFilledHover`, the preset color palettes, and every non-color token. Each needs a Figma value first.
+- **Motion in ms**: `motionUnit`, `motionBase` and the `motionDuration*` tokens are numbers of ms, not seconds and `0.1s` strings, so `motionUnit` is `100`, not `0.1`.
+- **Easing curves**: each `motionEase*` token is a `[x1, y1, x2, y2]` array for `Easing.bezier`, not a `cubic-bezier()` string.
+- **Line heights**: the `lineHeight*` tokens stay ratios, as in the reference model, with Figma values. `fontHeight`, `fontHeightSM` and `fontHeightLG`, internal in the reference model, are public here, because React Native's `lineHeight` takes dp.
+- **Font families**: `fontFamily` holds one family name, not a CSS font stack. `fontFamilyCode` is a system monospace family per platform: `Menlo` on iOS, `monospace` elsewhere.
+- **`lineType`**: limited to React Native's `borderStyle` values, `solid`, `dashed` and `dotted`.
+- **`fontWeightStrong`**: Qi's `Weight/body/strong1`, which equals the reference model's 600.
+- **Not defined yet**: `colorFill*`, `colorBgElevated`, `colorBgSpotlight`, `colorBgSolid*`, `colorBgBlur`, `colorSplit`, `colorLink*`, `colorBorderDisabled`, `colorErrorBgActive`, `colorErrorBgFilledHover`, the radius, size, control-height, spacing and screen tokens, the shadows and the other alias tokens. [docs/specs/theme-parity.md](specs/theme-parity.md) plans each one.
+- **Left out**: the preset colors and their palettes (they would make the palette public, against hard rule 4), `wireframe`, and the `cssVar` and `hashed` theme options, which only mean something with CSS.
 - **No dark or compact algorithm**: Figma defines no dark values or compact sizes. `ThemeConfig['algorithm']` already accepts an array, ready for them.
 
 ## Open questions for design
@@ -266,3 +380,6 @@ This library differs from the reference model in these ways:
 7. **Disabled container.** It borrows `colorBgLayout` because Figma defines no fill tokens, such as `colorFillTertiary`. Should there be fill tokens?
 8. **Dark mode.** No dark values exist in Figma.
 9. **Secondary seed.** There is no `colorSecondary` seed. Should one secondary family become a brand seed?
+10. **Font names.** Which names do apps register for Open Sans and AIA Everest: the iOS PostScript name and the Android font file name? `fontFamily` and `fontFamilyHeadline` hold Qi's `OpenSans` and `AIA Everest` until then.
+11. **Font weights on Android.** On the Android emulator, which has no Open Sans, `fontWeightStrong` (600) and `fontWeightHeadline` (500) render as regular, and only 700 renders bold; iOS renders all three. For a custom family, Android needs every weight registered, such as in a font XML resource. How will apps register the weights?
+12. **Missing Figma links.** Part 2b and Part 3 need the DDS: Components v3.2.1 link with a node that uses its spacing and radius variables, a DDS AU node that uses the `Box Shadow` styles, and a node that uses `Headings/Mobile/*` and `Body/* - Link`.

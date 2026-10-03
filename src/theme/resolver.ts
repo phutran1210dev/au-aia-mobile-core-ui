@@ -1,5 +1,6 @@
 import { defaultAlgorithm } from './algorithms/default';
 import { deriveAliasTokens } from './tokens/alias';
+import { applyMotionSwitch, deriveFontHeights } from './tokens/map';
 import { defaultSeed, seedTokenKeys } from './tokens/seed';
 import { resolveSemanticTokens, semanticTokenKeys } from './tokens/semantic';
 import type {
@@ -52,7 +53,10 @@ function splitKeys(token: TokenRecord, keys: ReadonlySet<string>) {
   return { picked, rest };
 }
 
-/** Steps 1-2 of the resolution order: merge seeds, then run the algorithms. */
+/**
+ * Steps 1-2 of the resolution order: merge seeds, run the algorithms, then apply the
+ * `motion` switch to whatever they produced.
+ */
 function deriveMap(
   seedOverrides: TokenRecord,
   algorithms: MappingAlgorithm[]
@@ -62,12 +66,13 @@ function deriveMap(
   for (const algorithm of algorithms) {
     map = algorithm(seed, map);
   }
-  return map as MapToken;
+  return applyMotionSwitch(map as MapToken);
 }
 
 /**
- * Steps 3-5: map and alias overrides apply exactly, alias and semantic tokens resolve by
- * reference against the result, then semantic overrides apply. Custom keys pass through.
+ * Steps 3-5: map and alias overrides apply exactly; `fontHeight*`, alias and semantic tokens
+ * resolve by reference against the result, then semantic overrides apply. Custom keys pass
+ * through.
  */
 function applyOverridesAndResolve(
   map: MapToken,
@@ -80,6 +85,7 @@ function applyOverridesAndResolve(
   const mapped = { ...map, ...rest } as MapToken;
   const aliased = {
     ...mapped,
+    ...deriveFontHeights(mapped),
     ...deriveAliasTokens(mapped),
     ...rest,
   } as AliasToken;

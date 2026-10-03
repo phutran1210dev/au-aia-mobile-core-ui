@@ -430,11 +430,199 @@ export const tokenFixtures: readonly TokenFixture[] = [
   },
 ];
 
-/** The Figma hex of one public token's default. Throws for a name with no fixture. */
-export function figmaValue(name: string): string {
-  const fixture = tokenFixtures.find((entry) => entry.name === name);
-  if (!fixture) {
+/**
+ * Qi tokens – AIA, collection `AIA Typography`, mode `EN` (the default), read with
+ * `use_figma` (`figma.variables`) on 2026-10-03. Values verbatim: weights are Qi's weight
+ * names. Mobile and body variables only; Desktop sizes stay out (theme-parity spec, D6).
+ */
+export const qiTypography: Readonly<Record<string, string | number>> = {
+  'Family/headline': 'AIA Everest',
+  'Family/body': 'OpenSans',
+  'Size/body1': 16,
+  'Size/body2': 14,
+  'Size/body3': 12,
+  'Size/body4': 10,
+  'Size/Mobile/headline1': 32,
+  'Size/Mobile/headline2': 28,
+  'Size/Mobile/headline3': 24,
+  'Size/Mobile/headline4': 22,
+  'Size/Mobile/headline5': 20,
+  'Size/Mobile/headline6': 18,
+  'Line height/body1': 24,
+  'Line height/body2': 20,
+  'Line height/body3': 18,
+  'Line height/body4': 14,
+  'Line height/Mobile/headline1': 40,
+  'Line height/Mobile/headline2': 36,
+  'Line height/Mobile/headline3': 32,
+  'Line height/Mobile/headline4': 30,
+  'Line height/Mobile/headline5': 26,
+  'Line height/Mobile/headline6': 24,
+  'Letter spacing/body': 0,
+  'Letter spacing/Mobile/headline1': -0.5,
+  'Letter spacing/Mobile/headline2': 0,
+  'Letter spacing/Mobile/headline3': 0,
+  'Letter spacing/Mobile/headline4': 0,
+  'Letter spacing/Mobile/headline5': 0,
+  'Letter spacing/Mobile/headline6': 0,
+  'Weight/headline/default': 'medium',
+  'Weight/headline/thin': 'regular',
+  'Weight/body/default': 'regular',
+  'Weight/body/strong1': 'semibold',
+  'Weight/body/strong2': 'bold',
+};
+
+/** The numeric (CSS) weight of each Qi weight name. */
+export const qiWeightNumbers: Readonly<Record<string, number>> = {
+  regular: 400,
+  medium: 500,
+  semibold: 600,
+  bold: 700,
+};
+
+/** One public typography token's expected default, read from a Qi typography variable. */
+export interface TypographyFixture {
+  name: string;
+  /** The Qi `AIA Typography` variable the value comes from. */
+  qi: string;
+  /** For a line-height ratio: the Qi size variable the px line height is divided by. */
+  per?: string;
+  value: string | number;
+}
+
+/** Expected default of every public typography token. */
+export const typographyFixtures: readonly TypographyFixture[] = [
+  // Seed
+  { name: 'fontFamily', qi: 'Family/body', value: 'OpenSans' },
+  { name: 'fontSize', qi: 'Size/body2', value: 14 },
+
+  // Map: sizes
+  { name: 'fontSizeSM', qi: 'Size/body3', value: 12 },
+  { name: 'fontSizeLG', qi: 'Size/body1', value: 16 },
+  { name: 'fontSizeXL', qi: 'Size/Mobile/headline6', value: 18 },
+  { name: 'fontSizeHeading1', qi: 'Size/Mobile/headline1', value: 32 },
+  { name: 'fontSizeHeading2', qi: 'Size/Mobile/headline2', value: 28 },
+  { name: 'fontSizeHeading3', qi: 'Size/Mobile/headline3', value: 24 },
+  { name: 'fontSizeHeading4', qi: 'Size/Mobile/headline4', value: 22 },
+  { name: 'fontSizeHeading5', qi: 'Size/Mobile/headline5', value: 20 },
+
+  // Map: line heights, as ratios (px ÷ size) and as px
+  {
+    name: 'lineHeight',
+    qi: 'Line height/body2',
+    per: 'Size/body2',
+    value: 20 / 14,
+  },
+  {
+    name: 'lineHeightSM',
+    qi: 'Line height/body3',
+    per: 'Size/body3',
+    value: 18 / 12,
+  },
+  {
+    name: 'lineHeightLG',
+    qi: 'Line height/body1',
+    per: 'Size/body1',
+    value: 24 / 16,
+  },
+  {
+    name: 'lineHeightHeading1',
+    qi: 'Line height/Mobile/headline1',
+    per: 'Size/Mobile/headline1',
+    value: 40 / 32,
+  },
+  {
+    name: 'lineHeightHeading2',
+    qi: 'Line height/Mobile/headline2',
+    per: 'Size/Mobile/headline2',
+    value: 36 / 28,
+  },
+  {
+    name: 'lineHeightHeading3',
+    qi: 'Line height/Mobile/headline3',
+    per: 'Size/Mobile/headline3',
+    value: 32 / 24,
+  },
+  {
+    name: 'lineHeightHeading4',
+    qi: 'Line height/Mobile/headline4',
+    per: 'Size/Mobile/headline4',
+    value: 30 / 22,
+  },
+  {
+    name: 'lineHeightHeading5',
+    qi: 'Line height/Mobile/headline5',
+    per: 'Size/Mobile/headline5',
+    value: 26 / 20,
+  },
+  { name: 'fontHeight', qi: 'Line height/body2', value: 20 },
+  { name: 'fontHeightSM', qi: 'Line height/body3', value: 18 },
+  { name: 'fontHeightLG', qi: 'Line height/body1', value: 24 },
+
+  // Alias
+  { name: 'fontWeightStrong', qi: 'Weight/body/strong1', value: 600 },
+
+  // Semantic (AIA typography)
+  { name: 'fontFamilyHeadline', qi: 'Family/headline', value: 'AIA Everest' },
+  { name: 'fontWeightHeadline', qi: 'Weight/headline/default', value: 500 },
+  { name: 'fontWeightHeadlineThin', qi: 'Weight/headline/thin', value: 400 },
+  { name: 'fontWeightBody', qi: 'Weight/body/default', value: 400 },
+  { name: 'fontWeightBodyStrong2', qi: 'Weight/body/strong2', value: 700 },
+  { name: 'fontSizeBody4', qi: 'Size/body4', value: 10 },
+  {
+    name: 'lineHeightBody4',
+    qi: 'Line height/body4',
+    per: 'Size/body4',
+    value: 14 / 10,
+  },
+  {
+    name: 'lineHeightHeadline6',
+    qi: 'Line height/Mobile/headline6',
+    per: 'Size/Mobile/headline6',
+    value: 24 / 18,
+  },
+  { name: 'letterSpacingBody', qi: 'Letter spacing/body', value: 0 },
+  {
+    name: 'letterSpacingHeadline1',
+    qi: 'Letter spacing/Mobile/headline1',
+    value: -0.5,
+  },
+  {
+    name: 'letterSpacingHeadline2',
+    qi: 'Letter spacing/Mobile/headline2',
+    value: 0,
+  },
+  {
+    name: 'letterSpacingHeadline3',
+    qi: 'Letter spacing/Mobile/headline3',
+    value: 0,
+  },
+  {
+    name: 'letterSpacingHeadline4',
+    qi: 'Letter spacing/Mobile/headline4',
+    value: 0,
+  },
+  {
+    name: 'letterSpacingHeadline5',
+    qi: 'Letter spacing/Mobile/headline5',
+    value: 0,
+  },
+  {
+    name: 'letterSpacingHeadline6',
+    qi: 'Letter spacing/Mobile/headline6',
+    value: 0,
+  },
+];
+
+/** The Figma value of one public token's default. Throws for a name with no fixture. */
+export function figmaValue(name: string): string | number {
+  const color = tokenFixtures.find((entry) => entry.name === name);
+  if (color) {
+    return color.hex;
+  }
+  const typography = typographyFixtures.find((entry) => entry.name === name);
+  if (!typography) {
     throw new Error(`No Figma fixture for ${name}`);
   }
-  return fixture.hex;
+  return typography.value;
 }

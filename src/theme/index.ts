@@ -26,11 +26,14 @@ export type { CreateStylesOptions, NamedStyles } from './createStyles';
 export type { UseTokenResult } from './hooks';
 export type {
   AliasToken,
+  CubicBezier,
   CustomToken,
+  FontWeight,
   GlobalToken,
   MapToken,
   SeedToken,
   SemanticColorToken,
+  SemanticTypographyToken,
 } from './tokens/types';
 export type {
   ComponentSize,
