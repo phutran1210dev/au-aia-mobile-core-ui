@@ -1,6 +1,6 @@
 # @au-aia/mobile-core-ui
 
-AU-AIA design system for React Native: design tokens, theming and core UI components, inspired by Ant Design.
+AU-AIA design system for React Native: design tokens, theming and core UI components.
 
 ## Installation
 

@@ -1,7 +1,7 @@
 {
   "name": "@au-aia/mobile-core-ui",
   "version": "0.1.0",
-  "description": "AU-AIA design system for React Native: design tokens, theming and core UI components, inspired by Ant Design.",
+  "description": "AU-AIA design system for React Native: design tokens, theming and core UI components.",
   "main": "./lib/module/index.js",
   "types": "./lib/typescript/src/index.d.ts",
   "exports": {
@@ -70,6 +70,7 @@
     "@react-native/eslint-config": "0.86.2",
     "@react-native/jest-preset": "0.86.2",
     "@release-it/conventional-changelog": "^12.0.0",
+    "@testing-library/react-native": "^14.0.1",
     "@types/react": "^19.2.0",
     "commitlint": "^21.2.1",
     "del-cli": "^7.0.0",
@@ -85,6 +86,7 @@
     "react-native-builder-bob": "^0.43.0",
     "react-native-web": "~0.21.2",
     "release-it": "^21.0.1",
+    "test-renderer": "~1.2.0",
     "turbo": "^2.10.8",
     "typescript": "^6.0.3"
   },

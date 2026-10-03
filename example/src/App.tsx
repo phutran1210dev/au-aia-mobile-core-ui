@@ -1,20 +1,11 @@
-import { Text, View, StyleSheet } from 'react-native';
-import { multiply } from '@au-aia/mobile-core-ui';
+import { ConfigProvider } from '@au-aia/mobile-core-ui';
 
-const result = multiply(3, 7);
+import { Playground } from './Playground';
 
 export default function App() {
   return (
-    <View style={styles.container}>
-      <Text>Result: {result}</Text>
-    </View>
+    <ConfigProvider>
+      <Playground />
+    </ConfigProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});

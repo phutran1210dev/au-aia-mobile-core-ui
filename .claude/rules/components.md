@@ -12,12 +12,17 @@ Do not write component code until the user starts the components phase.
 - Read semantic tokens first, Map/Alias tokens second. Never the palette, never a seed, never a literal (hard rule 3).
 - Theme-dependent styles come from `createStyles`. Static layout may use `StyleSheet.create`.
 - Apply `theme.components.<Name>` overrides over the global token before styling. The `algorithm` semantics are in `tokens-naming.md`.
-- Touch has no hover. Use the Pressed, Focused, Disabled and Selected semantic tokens; `*Hover` tokens exist only for antd compatibility.
+- Touch has no hover. Use the Pressed, Focused, Disabled and Selected semantic tokens; `*Hover` tokens exist only for parity with the reference model (`docs/tokens.md` § Prior art).
 
-Run this before every checkpoint. It must print nothing:
+Run this before every checkpoint. It must print nothing. It skips the palette, tests,
+fixtures and comment lines (JSDoc `@default` values are required by `tokens-naming.md`),
+and it matches `rgb(`/`rgba(` only when a number follows, so format strings such as
+`` `rgb(${channels})` `` in `utils/color.ts` pass:
 
 ```sh
-grep -rnE "#[0-9A-Fa-f]{3,8}\b|rgba?\(" src --include='*.ts' --include='*.tsx' | grep -v -e 'src/theme/palette/' -e '__tests__'
+grep -rnE "#[0-9A-Fa-f]{3,8}\b|rgba?\([[:space:]]*[0-9]" src --include='*.ts' --include='*.tsx' \
+  | grep -v -e 'src/theme/palette/' -e '__tests__' -e '__fixtures__' \
+  | grep -vE '^[^:]+:[0-9]+:[[:space:]]*(//|/?\*)'
 ```
 
 ## Contract for every component
