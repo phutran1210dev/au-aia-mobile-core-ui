@@ -1,23 +1,17 @@
 import { describe, expect, it, jest } from '@jest/globals';
 import { render, renderHook, screen } from '@testing-library/react-native';
-import { memo, type ReactNode } from 'react';
+import { memo } from 'react';
 import { View } from 'react-native';
 
 import {
   ConfigProvider,
   createStyles,
   theme,
-  type ConfigProviderProps,
   type ThemeConfig,
 } from '../../index';
-import { antdBlue } from '../__fixtures__/antd';
 import { figmaValue } from '../__fixtures__/figma';
-
-function withProvider(props: Omit<ConfigProviderProps, 'children'>) {
-  return ({ children }: { children: ReactNode }) => (
-    <ConfigProvider {...props}>{children}</ConfigProvider>
-  );
-}
+import { withProvider } from '../__fixtures__/providers';
+import { referenceDerivedFamilies } from '../__fixtures__/reference';
 
 const useButtonStyles = createStyles(
   (token) => ({
@@ -54,8 +48,12 @@ describe('theme.components (required test 5)', () => {
       components: { Button: { colorPrimary: '#1677ff', algorithm: true } },
     });
     expect(styles.fill.backgroundColor).toBe('#1677ff');
-    expect(styles.pressed.backgroundColor).toBe(antdBlue[6]);
-    expect(styles.tint.backgroundColor).toBe(antdBlue[0]);
+    expect(styles.pressed.backgroundColor).toBe(
+      referenceDerivedFamilies.colorPrimaryActive
+    );
+    expect(styles.tint.backgroundColor).toBe(
+      referenceDerivedFamilies.colorPrimaryBg
+    );
   });
 
   it('leaves the global token untouched', async () => {
@@ -69,18 +67,9 @@ describe('theme.components (required test 5)', () => {
 
   it('merges component overrides from a parent provider', async () => {
     const { result } = await renderHook(() => useButtonStyles(), {
-      wrapper: ({ children }: { children: ReactNode }) => (
-        <ConfigProvider
-          theme={{ components: { Button: { colorPrimary: '#1677ff' } } }}
-        >
-          <ConfigProvider
-            theme={{
-              components: { Button: { colorPrimaryActive: '#000000' } },
-            }}
-          >
-            {children}
-          </ConfigProvider>
-        </ConfigProvider>
+      wrapper: withProvider(
+        { theme: { components: { Button: { colorPrimary: '#1677ff' } } } },
+        { theme: { components: { Button: { colorPrimaryActive: '#000000' } } } }
       ),
     });
     expect(result.current.fill.backgroundColor).toBe('#1677ff');
@@ -139,10 +128,9 @@ describe('ConfigProvider.useConfig', () => {
 
   it('takes each value from the nearest provider that sets it', async () => {
     const { result } = await renderHook(() => ConfigProvider.useConfig(), {
-      wrapper: ({ children }: { children: ReactNode }) => (
-        <ConfigProvider componentSize="large" componentDisabled>
-          <ConfigProvider componentSize="small">{children}</ConfigProvider>
-        </ConfigProvider>
+      wrapper: withProvider(
+        { componentSize: 'large', componentDisabled: true },
+        { componentSize: 'small' }
       ),
     });
     expect(result.current).toEqual({

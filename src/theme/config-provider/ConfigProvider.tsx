@@ -20,8 +20,8 @@ export interface ConfigProviderProps {
 }
 
 /**
- * Provides the theme, component size and disabled state to a subtree, like antd's
- * ConfigProvider. Nested providers merge their parent's theme config unless
+ * Provides the theme, component size and disabled state to a subtree.
+ * Nested providers merge their parent's theme config unless
  * `theme.inherit` is `false`.
  *
  * @example
@@ -62,5 +62,5 @@ export function ConfigProvider({
   );
 }
 
-/** The nearest `componentSize` and `componentDisabled`, as antd's `ConfigProvider.useConfig`. */
+/** The nearest `componentSize` and `componentDisabled`. */
 ConfigProvider.useConfig = useConfig;

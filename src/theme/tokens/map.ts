@@ -2,141 +2,133 @@ import type { GeneratedPalette } from '../algorithms/generatePalette';
 import { palette } from '../palette';
 import type { MapToken, SeedToken } from './types';
 
+/** A palette slot that map tokens read: 1 to 7 of ten; slot 6 holds the seed color. Internal. */
+export type MapSlot = 1 | 2 | 3 | 4 | 5 | 6 | 7;
+
+/** The colors of one family by palette slot, lightest first. Internal. */
+export type PaletteSlots = Readonly<Record<MapSlot, string>>;
+
+/** Qi steps that fill slots 1 to 7, by family size. Internal. */
+const slotSteps = {
+  /** Ten-step family (Digital red): slot n is step n. */
+  tenStep: [50, 100, 200, 300, 400, 500, 600],
+  /** Seven-step families: two steps fill two slots each. */
+  sevenStep: [50, 100, 100, 200, 200, 300, 400],
+} as const;
+
+type SevenSlotSteps<S> = readonly [S, S, S, S, S, S, S];
+
+/** A Figma family's palette slots, from the Qi steps that fill them. Internal. */
+function slotsFromSteps<S extends number>(
+  family: Readonly<Record<S, string>>,
+  steps: SevenSlotSteps<S>
+): PaletteSlots {
+  const [s1, s2, s3, s4, s5, s6, s7] = steps;
+  return {
+    1: family[s1],
+    2: family[s2],
+    3: family[s3],
+    4: family[s4],
+    5: family[s5],
+    6: family[s6],
+    7: family[s7],
+  };
+}
+
+/** A generated ten-color palette's palette slots; its last three colors are unused. Internal. */
+export function slotsFromPalette(colors: GeneratedPalette): PaletteSlots {
+  return slotsFromSteps(colors, [0, 1, 2, 3, 4, 5, 6]);
+}
+
 /**
- * antd's ten palette slots, lightest first; slot 6 is the seed color. A Figma family fills
- * them with hand-picked Qi steps; an overridden seed fills them with `generatePalette`.
- * Map tokens read slots 1-7 only, as antd's `genColorMapToken` does. Internal.
+ * The slot table: which palette slot each map token of a family reads. `Text*` reuses
+ * slots 5 to 7, so `color*Text` equals the seed color; `Hover` reads the family's
+ * `hoverSlot`. Internal.
  */
-export type PaletteSlots = GeneratedPalette;
+const mapTokenSlots = {
+  'Bg': 1,
+  'BgHover': 2,
+  'Border': 3,
+  'BorderHover': 4,
+  'Hover': 'hoverSlot', // 4 or 5, per family (`ColorFamilySpec.hoverSlot`)
+  '': 6, // the seed token itself, such as `colorPrimary`
+  'Active': 7,
+  'TextHover': 5,
+  'Text': 6,
+  'TextActive': 7,
+} as const satisfies Record<string, MapSlot | 'hoverSlot'>;
 
-type TenSteps = Readonly<
-  Record<50 | 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900, string>
->;
-type SevenSteps = Readonly<
-  Record<50 | 100 | 200 | 300 | 400 | 500 | 600, string>
->;
-
-/** A ten-step Qi family: slot n is the nth step, 50 through 900. */
-export const tenStepSlots = (f: TenSteps): PaletteSlots => [
-  f[50],
-  f[100],
-  f[200],
-  f[300],
-  f[400],
-  f[500],
-  f[600],
-  f[700],
-  f[800],
-  f[900],
-];
-
-/**
- * A seven-step Qi family: slots 1-7 are steps 50, 100, 100, 200, 200, 300, 400. Slots 8-10
- * (400, 500, 600) only keep the ten-slot shape `generatePalette` returns; no token reads them.
- */
-export const sevenStepSlots = (f: SevenSteps): PaletteSlots => [
-  f[50],
-  f[100],
-  f[100],
-  f[200],
-  f[200],
-  f[300],
-  f[400],
-  f[400],
-  f[500],
-  f[600],
-];
-
-/** Color families with an antd seed. Internal. */
+/** Color families controlled by a seed token. Internal. */
 export type ColorFamily = 'Primary' | 'Success' | 'Warning' | 'Error' | 'Info';
-
-type FamilySuffix =
-  | ''
-  | 'Bg'
-  | 'BgHover'
-  | 'Border'
-  | 'BorderHover'
-  | 'Hover'
-  | 'Active'
-  | 'TextHover'
-  | 'Text'
-  | 'TextActive';
 
 type FamilyTokens<F extends ColorFamily> = Pick<
   MapToken,
-  Extract<`color${F}${FamilySuffix}`, keyof MapToken>
+  Extract<`color${F}${keyof typeof mapTokenSlots}`, keyof MapToken>
 >;
 
-/** What the default algorithm needs to know about one seeded family. Internal. */
+/** What the derivation algorithm needs to know about one seeded family. Internal. */
 export interface ColorFamilySpec {
   /** The seed token that controls the family. */
   seed: keyof SeedToken;
   /** Slots filled with Qi steps, used while the seed keeps its default. */
   figmaSlots: PaletteSlots;
-  /** antd takes `*Hover` from slot 5 for Primary and Error, and slot 4 for the others. */
-  hoverSlot: 4 | 5;
+  /** The slot `*Hover` reads: 5 for Primary and Error, 4 for the others. */
+  hoverSlot: MapSlot;
 }
 
 /** Every seeded family. Internal. */
 export const colorFamilies: Readonly<Record<ColorFamily, ColorFamilySpec>> = {
   Primary: {
     seed: 'colorPrimary',
-    figmaSlots: tenStepSlots(palette.digitalRed),
+    figmaSlots: slotsFromSteps(palette.digitalRed, slotSteps.tenStep),
     hoverSlot: 5,
   },
   Success: {
     seed: 'colorSuccess',
-    figmaSlots: sevenStepSlots(palette.digitalGreen),
+    figmaSlots: slotsFromSteps(palette.digitalGreen, slotSteps.sevenStep),
     hoverSlot: 4,
   },
   Warning: {
     seed: 'colorWarning',
-    figmaSlots: sevenStepSlots(palette.digitalYellow),
+    figmaSlots: slotsFromSteps(palette.digitalYellow, slotSteps.sevenStep),
     hoverSlot: 4,
   },
   Error: {
     seed: 'colorError',
-    figmaSlots: sevenStepSlots(palette.digitalCerise),
+    figmaSlots: slotsFromSteps(palette.digitalCerise, slotSteps.sevenStep),
     hoverSlot: 5,
   },
   Info: {
     seed: 'colorInfo',
-    figmaSlots: sevenStepSlots(palette.digitalBlue),
+    figmaSlots: slotsFromSteps(palette.digitalBlue, slotSteps.sevenStep),
     hoverSlot: 4,
   },
 };
 
-/**
- * The map tokens of one family from its slots, as antd's `genColorMapToken` assigns them:
- * the `Text*` tokens reuse slots 5, 6 and 7, so `color*Text` equals the seed color.
- */
+/** The map tokens of one family, read from its palette slots through the slot table. Internal. */
 export function familyTokens<F extends ColorFamily>(
   family: F,
   slots: PaletteSlots
 ): FamilyTokens<F> {
-  const [s1, s2, s3, s4, s5, s6, s7] = slots;
-  return {
-    [`color${family}Bg`]: s1,
-    [`color${family}BgHover`]: s2,
-    [`color${family}Border`]: s3,
-    [`color${family}BorderHover`]: s4,
-    [`color${family}Hover`]: colorFamilies[family].hoverSlot === 4 ? s4 : s5,
-    [`color${family}`]: s6,
-    [`color${family}Active`]: s7,
-    [`color${family}TextHover`]: s5,
-    [`color${family}Text`]: s6,
-    [`color${family}TextActive`]: s7,
-  } as FamilyTokens<F>;
+  const { hoverSlot } = colorFamilies[family];
+  const tokens: Record<string, string> = {};
+  for (const [suffix, slot] of Object.entries(mapTokenSlots)) {
+    tokens[`color${family}${suffix}`] =
+      slots[slot === 'hoverSlot' ? hoverSlot : slot];
+  }
+  return tokens as FamilyTokens<F>;
 }
 
-type TextTokens = Pick<
+/** The text neutrals. Internal. */
+export type TextTokens = Pick<
   MapToken,
   | 'colorText'
   | 'colorTextSecondary'
   | 'colorTextTertiary'
   | 'colorTextQuaternary'
 >;
-type BgTokens = Pick<
+/** The background and border neutrals. Internal. */
+export type BgTokens = Pick<
   MapToken,
   'colorBgContainer' | 'colorBgLayout' | 'colorBorder' | 'colorBorderSecondary'
 >;

@@ -4,9 +4,8 @@ import type { AliasToken, MapToken } from './types';
 type AliasOnlyToken = Omit<AliasToken, keyof MapToken>;
 
 /**
- * Each alias token as a reference to a map token, the way antd's `formatToken` derives it.
- * One deviation: antd derives colorBgContainerDisabled from colorFillTertiary, which this
- * library does not define yet (see `AliasToken`).
+ * Each alias token as a reference to a map token. colorBgContainerDisabled references
+ * colorBgLayout until fill tokens exist (see `AliasToken`).
  */
 const aliasReferences: ReferenceTable<keyof AliasOnlyToken, MapToken> = {
   colorTextDisabled: (map) => map.colorTextQuaternary,

@@ -1,6 +1,6 @@
 import { describe, expect, it, jest } from '@jest/globals';
 import { render, renderHook, screen } from '@testing-library/react-native';
-import { memo, useEffect, type ReactNode } from 'react';
+import { memo, useEffect } from 'react';
 import { Text } from 'react-native';
 
 import {
@@ -10,24 +10,12 @@ import {
   type MappingAlgorithm,
   type ThemeConfig,
 } from '../../index';
-import { antdOverriddenFamilies } from '../__fixtures__/antd';
 import { figmaValue, tokenFixtures } from '../__fixtures__/figma';
-
-function withProvider(config?: ThemeConfig) {
-  return ({ children }: { children: ReactNode }) => (
-    <ConfigProvider theme={config}>{children}</ConfigProvider>
-  );
-}
-
-/** Renders probes that record the token they see, by name. */
-function createProbes() {
-  const seen: Record<string, GlobalToken> = {};
-  function Probe({ name }: { name: string }) {
-    seen[name] = theme.useToken().token;
-    return null;
-  }
-  return { seen, Probe };
-}
+import {
+  referenceDerivedFamilies,
+  referenceDerivedNeutrals,
+} from '../__fixtures__/reference';
+import { createTokenProbes, withProvider } from '../__fixtures__/providers';
 
 describe('no provider', () => {
   it('returns the library defaults instead of throwing', async () => {
@@ -40,22 +28,22 @@ describe('no provider', () => {
 describe('seed override (required test 2)', () => {
   const pickFamily = (family: string) =>
     Object.fromEntries(
-      Object.entries(antdOverriddenFamilies).filter(([name]) =>
+      Object.entries(referenceDerivedFamilies).filter(([name]) =>
         name.startsWith(`color${family}`)
       )
     );
   const PRIMARY_FAMILY = pickFamily('Primary');
   const REFERENCES_TO_PRIMARY = {
-    controlItemBgActive: antdOverriddenFamilies.colorPrimaryBg,
-    controlItemBgActiveHover: antdOverriddenFamilies.colorPrimaryBgHover,
-    colorInteractiveActionable: antdOverriddenFamilies.colorPrimary,
+    controlItemBgActive: referenceDerivedFamilies.colorPrimaryBg,
+    controlItemBgActiveHover: referenceDerivedFamilies.colorPrimaryBgHover,
+    colorInteractiveActionable: referenceDerivedFamilies.colorPrimary,
     colorInteractiveActionablePressed:
-      antdOverriddenFamilies.colorPrimaryActive,
+      referenceDerivedFamilies.colorPrimaryActive,
   };
 
-  it('regenerates the primary map tokens exactly as antd does', async () => {
+  it('regenerates the primary map tokens as the reference model does', async () => {
     const { result } = await renderHook(() => theme.useToken(), {
-      wrapper: withProvider({ token: { colorPrimary: '#1677ff' } }),
+      wrapper: withProvider({ theme: { token: { colorPrimary: '#1677ff' } } }),
     });
     expect(result.current.token).toMatchObject({
       ...PRIMARY_FAMILY,
@@ -63,12 +51,13 @@ describe('seed override (required test 2)', () => {
     });
   });
 
-  it('regenerates a seven-step family (Success) exactly as antd does', () => {
+  it('regenerates a seven-step family (Success) as the reference model does', () => {
     const token = theme.getDesignToken({ token: { colorSuccess: '#52c41a' } });
     expect(token).toMatchObject({
       ...pickFamily('Success'),
-      colorInteractiveSuccess: antdOverriddenFamilies.colorSuccess,
-      colorInteractiveSuccessPressed: antdOverriddenFamilies.colorSuccessActive,
+      colorInteractiveSuccess: referenceDerivedFamilies.colorSuccess,
+      colorInteractiveSuccessPressed:
+        referenceDerivedFamilies.colorSuccessActive,
     });
   });
 
@@ -93,35 +82,32 @@ describe('seed override (required test 2)', () => {
     ).toEqual(theme.getDesignToken());
   });
 
-  it('regenerates the text neutrals from colorTextBase as antd does', () => {
-    const token = theme.getDesignToken({ token: { colorTextBase: '#000000' } });
+  it('regenerates the text neutrals from colorTextBase', () => {
+    const { seed, tokens } = referenceDerivedNeutrals.colorTextBase;
+    const token = theme.getDesignToken({ token: { colorTextBase: seed } });
     expect(token).toMatchObject({
-      colorText: 'rgba(0,0,0,0.88)',
-      colorTextSecondary: 'rgba(0,0,0,0.65)',
-      colorTextTertiary: 'rgba(0,0,0,0.45)',
-      colorTextQuaternary: 'rgba(0,0,0,0.25)',
-      colorTextDisabled: 'rgba(0,0,0,0.25)',
+      ...tokens,
+      colorTextDisabled: tokens.colorTextQuaternary,
     });
     expect(token.colorBorder).toBe(figmaValue('colorBorder'));
   });
 
   it('regenerates the background neutrals from colorBgBase', () => {
-    // Expected values: @ctrl/tinycolor darken(), see color.test.ts.
+    const { seed, tokens } = referenceDerivedNeutrals.colorBgBase;
+    const tinted = theme.getDesignToken({ token: { colorBgBase: seed } });
+    expect(tinted).toMatchObject(tokens);
+    expect(tinted.colorText).toBe(figmaValue('colorText'));
+  });
+
+  it('treats a white colorBgBase as not overridden', () => {
     const token = theme.getDesignToken({ token: { colorBgBase: '#ffffff' } });
     expect(token.colorBorder).toBe(figmaValue('colorBorder'));
-    const tinted = theme.getDesignToken({ token: { colorBgBase: '#F0F4FF' } });
-    expect(tinted).toMatchObject({
-      colorBgContainer: '#f0f4ff',
-      colorBorderSecondary: '#d1deff',
-      colorBorder: '#a3bcff',
-    });
-    expect(tinted.colorText).toBe(figmaValue('colorText'));
   });
 });
 
 describe('map and semantic overrides (required test 3)', () => {
   it('lets a semantic override win without leaking to siblings, parents or other subtrees', async () => {
-    const { seen, Probe } = createProbes();
+    const { seen, Probe } = createTokenProbes();
     await render(
       <ConfigProvider>
         <Probe name="parent" />
@@ -182,7 +168,7 @@ describe('map and semantic overrides (required test 3)', () => {
 
 describe('nested providers (required test 4)', () => {
   it('merges the parent config with inherit: true (the default)', async () => {
-    const { seen, Probe } = createProbes();
+    const { seen, Probe } = createTokenProbes();
     const tagged: MappingAlgorithm = (seed, map) => ({
       ...(map ?? theme.defaultAlgorithm(seed)),
       colorBgMask: '#00000080',
@@ -207,7 +193,7 @@ describe('nested providers (required test 4)', () => {
   });
 
   it('starts again from the library defaults with inherit: false', async () => {
-    const { seen, Probe } = createProbes();
+    const { seen, Probe } = createTokenProbes();
     await render(
       <ConfigProvider theme={{ token: { colorPrimary: '#1677ff' } }}>
         <ConfigProvider
@@ -236,7 +222,7 @@ describe('getDesignToken (required test 6)', () => {
     'deep-equals useToken() under ConfigProvider with %s',
     async (_, config) => {
       const { result } = await renderHook(() => theme.useToken(), {
-        wrapper: withProvider(config),
+        wrapper: withProvider({ theme: config }),
       });
       expect(theme.getDesignToken(config)).toEqual(result.current.token);
     }

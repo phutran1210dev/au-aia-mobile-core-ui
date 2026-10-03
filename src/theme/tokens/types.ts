@@ -1,6 +1,7 @@
 /**
- * Public token interfaces. Names in Seed, Map and Alias come from antd; names in Semantic
- * come from DDS `Interactive/*`. Values come from Qi tokens – AIA (node 102-2817).
+ * Public token interfaces. Seed, map and alias tokens follow the reference model
+ * (docs/tokens.md § Prior art); semantic token names come from DDS `Interactive/*`.
+ * Values come from Qi tokens – AIA (node 102-2817).
  * Hex values in `@default` were copied from Figma; docs/tokens.md lists every token.
  */
 
@@ -41,15 +42,15 @@ export interface SeedToken {
    */
   colorInfo: string;
   /**
-   * Base text color. Overriding it regenerates the colorText* tokens as antd does
-   * (alpha 0.88, 0.65, 0.45, 0.25 of this color).
+   * Base text color. Overriding it regenerates the colorText* tokens as alphas of this
+   * color (0.88, 0.65, 0.45, 0.25).
    * @figma Qi Primary/Digital charcoal/digitalcharcoal-600 (DDS Primary/Charcoal/100)
    * @default palette.digitalCharcoal[600] = #333D47
    */
   colorTextBase: string;
   /**
    * Base background color. Overriding it regenerates colorBgContainer, colorBgLayout,
-   * colorBorder and colorBorderSecondary as antd does (darkened by 0, 4, 15 and 6).
+   * colorBorder and colorBorderSecondary by darkening this color by 0, 4, 15 and 6 points.
    * @figma Qi Monotone/monotone-white
    * @default palette.monotone.white = #FFFFFF
    */
@@ -57,14 +58,16 @@ export interface SeedToken {
 }
 
 /**
- * Map tokens: antd's MapToken names and meanings. Defaults are hand-mapped Qi steps;
- * an overridden seed regenerates its family with `generatePalette`.
+ * Map tokens: one color for each purpose in a seed's family, read from palette slots.
+ * Defaults are hand-mapped Qi steps; an overridden seed regenerates its family with
+ * `generatePalette`.
  *
- * antd's `*Hover` tokens are kept for compatibility. React Native has no hover, so
- * components use the semantic Pressed tokens, which reference the `*Active` tokens.
+ * `*Hover` tokens are kept for parity with the reference model (docs/tokens.md § Prior
+ * art). Touch screens have no hover, so components use
+ * the semantic Pressed tokens, which reference the `*Active` tokens.
  */
 export interface MapToken extends SeedToken {
-  // Primary: Digital red, ten steps; slot n = step n. Text* reuse slots 5-7, as in antd.
+  // Primary: Digital red, ten steps; slot n = step n. Text* reuse slots 5-7.
 
   /**
    * Lightest primary tint, for the background of a primary-tinted area.
@@ -73,7 +76,7 @@ export interface MapToken extends SeedToken {
    */
   colorPrimaryBg: string;
   /**
-   * colorPrimaryBg under hover. antd compatibility only.
+   * colorPrimaryBg under hover. Unused on touch.
    * @figma Qi Primary/Digital red/digitalred-100
    * @default palette.digitalRed[100] = #FADAE3
    */
@@ -85,39 +88,39 @@ export interface MapToken extends SeedToken {
    */
   colorPrimaryBorder: string;
   /**
-   * colorPrimaryBorder under hover. antd compatibility only.
+   * colorPrimaryBorder under hover. Unused on touch.
    * @figma Qi Primary/Digital red/digitalred-300
    * @default palette.digitalRed[300] = #E84671
    */
   colorPrimaryBorderHover: string;
   /**
-   * colorPrimary under hover. antd compatibility only.
+   * colorPrimary under hover. Unused on touch.
    * @figma Qi Primary/Digital red/digitalred-400
    * @default palette.digitalRed[400] = #E32155
    */
   colorPrimaryHover: string;
   /**
-   * colorPrimary while pressed (antd's active state).
+   * colorPrimary while pressed (the active state).
    * @figma Qi Primary/Digital red/digitalred-600
    * @default palette.digitalRed[600] = #B30635
    */
   colorPrimaryActive: string;
   /**
-   * colorPrimaryText under hover. antd compatibility only.
+   * colorPrimaryText under hover. Unused on touch.
    * @figma Qi Primary/Digital red/digitalred-400
-   * @default palette.digitalRed[400] = #E32155 (slot 5, as in antd)
+   * @default palette.digitalRed[400] = #E32155 (palette slot 5)
    */
   colorPrimaryTextHover: string;
   /**
    * Text in the primary family, such as a link-style label.
    * @figma Qi Primary/Digital red/digitalred-500
-   * @default palette.digitalRed[500] = #E00842 (slot 6, as in antd)
+   * @default palette.digitalRed[500] = #E00842 (palette slot 6)
    */
   colorPrimaryText: string;
   /**
    * colorPrimaryText while pressed.
    * @figma Qi Primary/Digital red/digitalred-600
-   * @default palette.digitalRed[600] = #B30635 (slot 7, as in antd)
+   * @default palette.digitalRed[600] = #B30635 (palette slot 7)
    */
   colorPrimaryTextActive: string;
 
@@ -130,7 +133,7 @@ export interface MapToken extends SeedToken {
    */
   colorSuccessBg: string;
   /**
-   * colorSuccessBg under hover. antd compatibility only.
+   * colorSuccessBg under hover. Unused on touch.
    * @figma Qi Semantic/Digital green/digitalgreen-100
    * @default palette.digitalGreen[100] = #A7D9C1
    */
@@ -142,13 +145,13 @@ export interface MapToken extends SeedToken {
    */
   colorSuccessBorder: string;
   /**
-   * colorSuccessBorder under hover. antd compatibility only.
+   * colorSuccessBorder under hover. Unused on touch.
    * @figma Qi Semantic/Digital green/digitalgreen-200
    * @default palette.digitalGreen[200] = #64BC93
    */
   colorSuccessBorderHover: string;
   /**
-   * colorSuccess under hover (slot 4, as in antd). antd compatibility only.
+   * colorSuccess under hover (palette slot 4). Unused on touch.
    * @figma Qi Semantic/Digital green/digitalgreen-200
    * @default palette.digitalGreen[200] = #64BC93
    */
@@ -160,21 +163,21 @@ export interface MapToken extends SeedToken {
    */
   colorSuccessActive: string;
   /**
-   * colorSuccessText under hover. antd compatibility only.
+   * colorSuccessText under hover. Unused on touch.
    * @figma Qi Semantic/Digital green/digitalgreen-200
-   * @default palette.digitalGreen[200] = #64BC93 (slot 5, as in antd)
+   * @default palette.digitalGreen[200] = #64BC93 (palette slot 5)
    */
   colorSuccessTextHover: string;
   /**
    * Text in the success family.
    * @figma Qi Semantic/Digital green/digitalgreen-300
-   * @default palette.digitalGreen[300] = #229F64 (slot 6, as in antd)
+   * @default palette.digitalGreen[300] = #229F64 (palette slot 6)
    */
   colorSuccessText: string;
   /**
    * colorSuccessText while pressed.
    * @figma Qi Semantic/Digital green/digitalgreen-400
-   * @default palette.digitalGreen[400] = #1B7F50 (slot 7, as in antd)
+   * @default palette.digitalGreen[400] = #1B7F50 (palette slot 7)
    */
   colorSuccessTextActive: string;
 
@@ -187,7 +190,7 @@ export interface MapToken extends SeedToken {
    */
   colorWarningBg: string;
   /**
-   * colorWarningBg under hover. antd compatibility only.
+   * colorWarningBg under hover. Unused on touch.
    * @figma Qi Semantic/Digital yellow/digitalyellow-100
    * @default palette.digitalYellow[100] = #FCE8A1
    */
@@ -199,13 +202,13 @@ export interface MapToken extends SeedToken {
    */
   colorWarningBorder: string;
   /**
-   * colorWarningBorder under hover. antd compatibility only.
+   * colorWarningBorder under hover. Unused on touch.
    * @figma Qi Semantic/Digital yellow/digitalyellow-200
    * @default palette.digitalYellow[200] = #F9D864
    */
   colorWarningBorderHover: string;
   /**
-   * colorWarning under hover (slot 4, as in antd). antd compatibility only.
+   * colorWarning under hover (palette slot 4). Unused on touch.
    * @figma Qi Semantic/Digital yellow/digitalyellow-200
    * @default palette.digitalYellow[200] = #F9D864
    */
@@ -217,21 +220,21 @@ export interface MapToken extends SeedToken {
    */
   colorWarningActive: string;
   /**
-   * colorWarningText under hover. antd compatibility only.
+   * colorWarningText under hover. Unused on touch.
    * @figma Qi Semantic/Digital yellow/digitalyellow-200
-   * @default palette.digitalYellow[200] = #F9D864 (slot 5, as in antd)
+   * @default palette.digitalYellow[200] = #F9D864 (palette slot 5)
    */
   colorWarningTextHover: string;
   /**
    * Text in the warning family.
    * @figma Qi Semantic/Digital yellow/digitalyellow-300
-   * @default palette.digitalYellow[300] = #F7C926 (slot 6, as in antd)
+   * @default palette.digitalYellow[300] = #F7C926 (palette slot 6)
    */
   colorWarningText: string;
   /**
    * colorWarningText while pressed.
    * @figma Qi Semantic/Digital yellow/digitalyellow-400
-   * @default palette.digitalYellow[400] = #BF9B1D (slot 7, as in antd)
+   * @default palette.digitalYellow[400] = #BF9B1D (palette slot 7)
    */
   colorWarningTextActive: string;
 
@@ -244,7 +247,7 @@ export interface MapToken extends SeedToken {
    */
   colorErrorBg: string;
   /**
-   * colorErrorBg under hover. antd compatibility only.
+   * colorErrorBg under hover. Unused on touch.
    * @figma Qi Semantic/Digital cerise/digitalcerise-100
    * @default palette.digitalCerise[100] = #EC96C3
    */
@@ -256,13 +259,13 @@ export interface MapToken extends SeedToken {
    */
   colorErrorBorder: string;
   /**
-   * colorErrorBorder under hover. antd compatibility only.
+   * colorErrorBorder under hover. Unused on touch.
    * @figma Qi Semantic/Digital cerise/digitalcerise-200
    * @default palette.digitalCerise[200] = #E0519B
    */
   colorErrorBorderHover: string;
   /**
-   * colorError under hover (slot 5, as in antd). antd compatibility only.
+   * colorError under hover (palette slot 5). Unused on touch.
    * @figma Qi Semantic/Digital cerise/digitalcerise-200
    * @default palette.digitalCerise[200] = #E0519B
    */
@@ -274,21 +277,21 @@ export interface MapToken extends SeedToken {
    */
   colorErrorActive: string;
   /**
-   * colorErrorText under hover. antd compatibility only.
+   * colorErrorText under hover. Unused on touch.
    * @figma Qi Semantic/Digital cerise/digitalcerise-200
-   * @default palette.digitalCerise[200] = #E0519B (slot 5, as in antd)
+   * @default palette.digitalCerise[200] = #E0519B (palette slot 5)
    */
   colorErrorTextHover: string;
   /**
    * Text in the error family, such as a field's error message.
    * @figma Qi Semantic/Digital cerise/digitalcerise-300
-   * @default palette.digitalCerise[300] = #D40C74 (slot 6, as in antd)
+   * @default palette.digitalCerise[300] = #D40C74 (palette slot 6)
    */
   colorErrorText: string;
   /**
    * colorErrorText while pressed.
    * @figma Qi Semantic/Digital cerise/digitalcerise-400
-   * @default palette.digitalCerise[400] = #A4095A (slot 7, as in antd)
+   * @default palette.digitalCerise[400] = #A4095A (palette slot 7)
    */
   colorErrorTextActive: string;
 
@@ -301,7 +304,7 @@ export interface MapToken extends SeedToken {
    */
   colorInfoBg: string;
   /**
-   * colorInfoBg under hover. antd compatibility only.
+   * colorInfoBg under hover. Unused on touch.
    * @figma Qi Semantic/Digital blue/digitalblue-100
    * @default palette.digitalBlue[100] = #9EC5ED
    */
@@ -313,13 +316,13 @@ export interface MapToken extends SeedToken {
    */
   colorInfoBorder: string;
   /**
-   * colorInfoBorder under hover. antd compatibility only.
+   * colorInfoBorder under hover. Unused on touch.
    * @figma Qi Semantic/Digital blue/digitalblue-200
    * @default palette.digitalBlue[200] = #3D8ADB
    */
   colorInfoBorderHover: string;
   /**
-   * colorInfo under hover (slot 4, as in antd). antd compatibility only.
+   * colorInfo under hover (palette slot 4). Unused on touch.
    * @figma Qi Semantic/Digital blue/digitalblue-200
    * @default palette.digitalBlue[200] = #3D8ADB
    */
@@ -331,21 +334,21 @@ export interface MapToken extends SeedToken {
    */
   colorInfoActive: string;
   /**
-   * colorInfoText under hover. antd compatibility only.
+   * colorInfoText under hover. Unused on touch.
    * @figma Qi Semantic/Digital blue/digitalblue-200
-   * @default palette.digitalBlue[200] = #3D8ADB (slot 5, as in antd)
+   * @default palette.digitalBlue[200] = #3D8ADB (palette slot 5)
    */
   colorInfoTextHover: string;
   /**
    * Text in the info family.
    * @figma Qi Semantic/Digital blue/digitalblue-300
-   * @default palette.digitalBlue[300] = #0C6DD2 (slot 6, as in antd)
+   * @default palette.digitalBlue[300] = #0C6DD2 (palette slot 6)
    */
   colorInfoText: string;
   /**
    * colorInfoText while pressed.
    * @figma Qi Semantic/Digital blue/digitalblue-400
-   * @default palette.digitalBlue[400] = #0A57A8 (slot 7, as in antd)
+   * @default palette.digitalBlue[400] = #0A57A8 (palette slot 7)
    */
   colorInfoTextActive: string;
 
@@ -414,8 +417,8 @@ export interface MapToken extends SeedToken {
 }
 
 /**
- * Alias tokens: antd's AliasToken names and meanings, derived from map tokens the way antd
- * derives them. They re-resolve when the map token they reference is overridden.
+ * Alias tokens: named roles, such as disabled text, that reference map tokens. They
+ * re-resolve when the map token they reference is overridden.
  */
 export interface AliasToken extends MapToken {
   /**
@@ -461,7 +464,7 @@ export interface AliasToken extends MapToken {
    */
   colorIcon: string;
   /**
-   * Icon color under hover. antd compatibility only.
+   * Icon color under hover. Unused on touch.
    * @figma Qi Primary/Digital charcoal/digitalcharcoal-600
    * @default colorText, i.e. palette.digitalCharcoal[600] = #333D47
    */
@@ -479,15 +482,15 @@ export interface AliasToken extends MapToken {
    */
   controlItemBgActive: string;
   /**
-   * controlItemBgActive under hover. antd compatibility only.
+   * controlItemBgActive under hover. Unused on touch.
    * @figma Qi Primary/Digital red/digitalred-100
    * @default colorPrimaryBgHover, i.e. palette.digitalRed[100] = #FADAE3
    */
   controlItemBgActiveHover: string;
   /**
    * Background of a disabled container, such as a disabled input.
-   * Deviation: antd derives it from colorFillTertiary, a fill token this library does not
-   * define yet, so it references colorBgLayout, the closest Figma value.
+   * It references colorBgLayout, the closest Figma value, until fill tokens exist
+   * (docs/tokens.md § Prior art).
    * @figma Qi Primary/Digital charcoal/digitalcharcoal-50
    * @default colorBgLayout, i.e. palette.digitalCharcoal[50] = #F5F5F6
    * @interim pending design: no disabled color in DDS.
@@ -513,7 +516,7 @@ export interface SemanticColorToken {
   colorInteractiveActionable: string;
   /**
    * Fill of an actionable element while pressed.
-   * @figma none; derived antd-style from DDS Interactive/Actionable
+   * @figma none; the `*Active` map token (palette slot 7) for DDS Interactive/Actionable
    * @default colorPrimaryActive, i.e. palette.digitalRed[600] = #B30635
    * @interim pending design: DDS defines no pressed state.
    */
@@ -534,7 +537,7 @@ export interface SemanticColorToken {
   colorInteractiveInformative: string;
   /**
    * colorInteractiveInformative while pressed.
-   * @figma none; derived antd-style from DDS Interactive/Informative
+   * @figma none; the `*Active` map token (palette slot 7) for DDS Interactive/Informative
    * @default colorInfoActive, i.e. palette.digitalBlue[400] = #0A57A8
    * @interim pending design: DDS defines no pressed state.
    */
@@ -548,7 +551,7 @@ export interface SemanticColorToken {
   colorInteractiveSuccess: string;
   /**
    * colorInteractiveSuccess while pressed.
-   * @figma none; derived antd-style from DDS Interactive/Success
+   * @figma none; the `*Active` map token (palette slot 7) for DDS Interactive/Success
    * @default colorSuccessActive, i.e. palette.digitalGreen[400] = #1B7F50
    * @interim pending design: DDS defines no pressed state.
    */
@@ -562,7 +565,7 @@ export interface SemanticColorToken {
   colorInteractiveWarning: string;
   /**
    * colorInteractiveWarning while pressed.
-   * @figma none; derived antd-style from the DDS Warning swatch
+   * @figma none; the `*Active` map token (palette slot 7) for the DDS Warning swatch
    * @default colorWarningActive, i.e. palette.digitalYellow[400] = #BF9B1D
    * @interim pending design: DDS defines no pressed state.
    */
@@ -576,7 +579,7 @@ export interface SemanticColorToken {
   colorInteractiveError: string;
   /**
    * colorInteractiveError while pressed.
-   * @figma none; derived antd-style from the DDS Error swatch
+   * @figma none; the `*Active` map token (palette slot 7) for the DDS Error swatch
    * @default colorErrorActive, i.e. palette.digitalCerise[400] = #A4095A
    * @interim pending design: DDS defines no pressed state.
    */

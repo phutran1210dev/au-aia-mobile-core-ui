@@ -3,7 +3,7 @@ import { getDesignToken } from './getDesignToken';
 import { useToken } from './hooks';
 
 /**
- * Theme helpers, as antd's `theme` export.
+ * Theme helpers.
  *
  * - `defaultAlgorithm`: the light algorithm. The default theme outputs the Figma values.
  * - `useToken()`: `{ token }` of the nearest `ConfigProvider`.

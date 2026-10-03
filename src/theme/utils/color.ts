@@ -3,7 +3,7 @@
  * dependencies (theme.md).
  *
  * `toHsv`, `fromHsv`, the hex output and the rgb() output are ported from
- * @ant-design/fast-color 3.0.1, so generated palettes match antd's exactly:
+ * @ant-design/fast-color 3.0.1, so generated palettes match the reference model exactly:
  *
  *   The MIT License (MIT)
  *   Copyright (c) 2015-present Alipay.com, https://www.alipay.com/
@@ -27,7 +27,7 @@
  *
  * `darken` deliberately differs from fast-color: fast-color passes the HSV saturation into
  * an HSL conversion, which shifts non-grey colors even at `darken(0)`. This version uses
- * HSL throughout, as @ctrl/tinycolor (which antd used before fast-color) does.
+ * HSL throughout, as @ctrl/tinycolor does.
  */
 
 /** An sRGB color with 0-255 channels and a 0-1 alpha. Internal. */
@@ -177,7 +177,7 @@ export function fromHsv({ h: hue, s, v }: Hsv): Rgba {
   }
 }
 
-/** The color with its alpha replaced, as an rgb()/rgba() string (antd `getAlphaColor`). */
+/** The color with its alpha replaced, as an rgb()/rgba() string. */
 export function setAlpha(color: string, alpha: number): string {
   return toRgbString({ ...parseColorOrThrow(color), a: clamp(alpha, 0, 1) });
 }
@@ -210,8 +210,8 @@ function hueToChannel(p: number, q: number, t: number) {
 }
 
 /**
- * The color with its HSL lightness lowered by `amount` percentage points, as a hex string
- * (antd `getSolidColor`). See the file header for how this differs from fast-color.
+ * The color with its HSL lightness lowered by `amount` percentage points, as a hex string.
+ * See the file header for how this differs from fast-color.
  */
 export function darken(color: string, amount: number): string {
   const rgba = parseColorOrThrow(color);

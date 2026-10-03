@@ -92,7 +92,7 @@ function getValue(hsv: Hsv, i: number, light: boolean): number {
 }
 
 /**
- * Builds a ten-color family around one color, exactly as antd's `generate()` does.
+ * Builds a ten-color family around one color, exactly as the original `generate()` does.
  * Throws for a color that `parseColor` cannot read.
  */
 export function generatePalette(color: string): GeneratedPalette {

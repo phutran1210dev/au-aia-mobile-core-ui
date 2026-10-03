@@ -1,9 +1,7 @@
 import { describe, expect, it } from '@jest/globals';
 
+import { referenceAlpha, referenceDarken } from '../../__fixtures__/reference';
 import { darken, isSameColor, parseColor, setAlpha } from '../color';
-
-// Expected values were produced by the reference libraries, not by this code:
-// @ant-design/fast-color 3.0.1 for setAlpha, @ctrl/tinycolor for darken.
 
 describe('parseColor', () => {
   it.each([
@@ -25,24 +23,21 @@ describe('parseColor', () => {
 });
 
 describe('setAlpha', () => {
-  it('matches antd getAlphaColor', () => {
-    expect(setAlpha('#333D47', 0.88)).toBe('rgba(51,61,71,0.88)');
-    expect(setAlpha('#1677ff', 0.25)).toBe('rgba(22,119,255,0.25)');
-  });
+  it.each(referenceAlpha)(
+    'sets the alpha of %s to %d as %s',
+    (color, alpha, expected) => {
+      expect(setAlpha(color, alpha)).toBe(expected);
+    }
+  );
 });
 
 describe('darken', () => {
-  it.each([
-    ['#ffffff', 4, '#f5f5f5'],
-    ['#ffffff', 15, '#d9d9d9'],
-    ['#F0F4FF', 0, '#f0f4ff'],
-    ['#F0F4FF', 6, '#d1deff'],
-    ['#F0F4FF', 15, '#a3bcff'],
-    ['#FFF8E1', 4, '#fff3cd'],
-    ['#333D47', 10, '#1e2329'],
-  ])('darkens %s by %d to %s in HSL lightness', (input, amount, expected) => {
-    expect(darken(input, amount)).toBe(expected);
-  });
+  it.each(referenceDarken)(
+    'darkens %s by %d to %s in HSL lightness',
+    (input, amount, expected) => {
+      expect(darken(input, amount)).toBe(expected);
+    }
+  );
 });
 
 describe('isSameColor', () => {

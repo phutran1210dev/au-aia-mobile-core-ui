@@ -2,7 +2,7 @@ import type { GlobalToken, MapToken, SeedToken } from './tokens/types';
 
 /**
  * Turns seed tokens into map tokens. Algorithms in an array run in order, and each one
- * receives the previous one's result, as in antd.
+ * receives the previous one's result.
  */
 export type MappingAlgorithm = (
   seed: SeedToken,
@@ -31,7 +31,6 @@ export interface ComponentsConfig {
 
 /**
  * The `theme` prop of `ConfigProvider`, and the argument of `theme.getDesignToken`.
- * Mirrors antd's ThemeConfig.
  */
 export interface ThemeConfig {
   /** Token overrides: seed, map, alias, semantic or custom keys. */
@@ -47,5 +46,5 @@ export interface ThemeConfig {
   inherit?: boolean;
 }
 
-/** Size of components in a subtree. antd says `middle`; this library says `medium`. */
+/** Size of components in a subtree. */
 export type ComponentSize = 'small' | 'medium' | 'large';

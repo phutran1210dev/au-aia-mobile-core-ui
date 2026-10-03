@@ -90,22 +90,33 @@ function applyOverridesAndResolve(
   }) as GlobalToken;
 }
 
-/**
- * The theme's token. `exactOverrides` (a component's keys under `algorithm: false`) apply
- * after the theme's own overrides, seeds included, without regenerating anything.
- */
-function computeToken(
-  config: ThemeConfig,
-  exactOverrides: TokenRecord = {}
-): GlobalToken {
-  const { picked: seeds, rest } = splitKeys(
-    withoutUndefined(config.token as TokenRecord),
-    seedTokenKeys
-  );
-  return applyOverridesAndResolve(
-    deriveMap(seeds, toAlgorithms(config.algorithm)),
-    { ...rest, ...exactOverrides }
-  );
+/** What one resolution needs: token overrides, algorithms, and keys to apply exactly. */
+interface ResolveInput {
+  token: TokenRecord;
+  algorithms: MappingAlgorithm[];
+  /** Applied after `token`'s overrides, seeds included, without regenerating anything. */
+  exactOverrides?: TokenRecord;
+}
+
+/** Every resolution path (theme, component with or without its algorithm) runs through here. */
+function resolveFrom({
+  token,
+  algorithms,
+  exactOverrides = {},
+}: ResolveInput): GlobalToken {
+  const { picked: seeds, rest } = splitKeys(token, seedTokenKeys);
+  return applyOverridesAndResolve(deriveMap(seeds, algorithms), {
+    ...rest,
+    ...exactOverrides,
+  });
+}
+
+/** The theme's own token overrides and algorithms. */
+function fromTheme(config: ThemeConfig): ResolveInput {
+  return {
+    token: withoutUndefined(config.token as TokenRecord),
+    algorithms: toAlgorithms(config.algorithm),
+  };
 }
 
 function tokenKey(config: ThemeConfig): string {
@@ -118,7 +129,7 @@ function tokenKey(config: ThemeConfig): string {
  * `config.components` does not affect the global token.
  */
 export function resolveToken(config: ThemeConfig): GlobalToken {
-  return tokenCache(tokenKey(config), () => computeToken(config));
+  return tokenCache(tokenKey(config), () => resolveFrom(fromTheme(config)));
 }
 
 function computeComponentToken(
@@ -126,22 +137,18 @@ function computeComponentToken(
   componentConfig: ComponentThemeConfig
 ): GlobalToken {
   const { algorithm = false, ...componentToken } = componentConfig;
-  const globalToken = withoutUndefined(config.token as TokenRecord);
+  const theme = fromTheme(config);
   const componentOverrides = withoutUndefined(componentToken as TokenRecord);
 
   if (algorithm === false) {
-    return computeToken(config, componentOverrides);
+    // The theme's map stays; the component's keys apply exactly.
+    return resolveFrom({ ...theme, exactOverrides: componentOverrides });
   }
-
-  const algorithms =
-    algorithm === true
-      ? toAlgorithms(config.algorithm)
-      : toAlgorithms(algorithm);
-  const { picked: seeds, rest } = splitKeys(
-    { ...globalToken, ...componentOverrides },
-    seedTokenKeys
-  );
-  return applyOverridesAndResolve(deriveMap(seeds, algorithms), rest);
+  // The component's seeds regenerate their families.
+  return resolveFrom({
+    token: { ...theme.token, ...componentOverrides },
+    algorithms: algorithm === true ? theme.algorithms : toAlgorithms(algorithm),
+  });
 }
 
 /**
