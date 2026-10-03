@@ -11,6 +11,32 @@
         "hooks": [
           {
             "type": "command",
+            "if": "Bash(git push *)",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-dangerous-git.sh"
+          },
+          {
+            "type": "command",
+            "if": "Bash(git reset --hard *)",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-dangerous-git.sh"
+          },
+          {
+            "type": "command",
+            "if": "Bash(git clean *)",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-dangerous-git.sh"
+          },
+          {
+            "type": "command",
+            "if": "Bash(git branch -D *)",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-dangerous-git.sh"
+          },
+          {
+            "type": "command",
+            "if": "Bash(git checkout .)",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-dangerous-git.sh"
+          },
+          {
+            "type": "command",
+            "if": "Bash(git restore .)",
             "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-dangerous-git.sh"
           }
         ]
