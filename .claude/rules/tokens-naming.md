@@ -13,11 +13,11 @@ paths:
 | --- | ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------- | ------------------------------------------------------------------------- | ------ |
 | 1   | Palette (primitive) | `palette.digitalRed[50..900]`, `palette.digitalCharcoal[..]`, `palette.monotone.white`, `palette.alpha.*`                                                                   | Design team only, synced from Qi Figma | Raw hex in Qi tokens – AIA                                                | No     |
 | 2   | Seed                | `colorPrimary`, `colorSuccess`, `colorWarning`, `colorError`, `colorInfo`, `colorTextBase`, `colorBgBase`                                                                   | Apps, by override                      | A palette step: the Figma brand value                                     | Yes    |
-| 3   | Map (antd)          | `colorPrimaryBg`, `colorPrimaryHover`, `colorPrimaryActive`, `colorPrimaryBorder`, `colorPrimaryText`, `colorText`, `colorTextSecondary`, `colorBgContainer`, `colorBorder` | Apps, by override                      | Hand-mapped palette steps; the algorithm only when the seed is overridden | Yes    |
+| 3   | Map                 | `colorPrimaryBg`, `colorPrimaryHover`, `colorPrimaryActive`, `colorPrimaryBorder`, `colorPrimaryText`, `colorText`, `colorTextSecondary`, `colorBgContainer`, `colorBorder` | Apps, by override                      | Hand-mapped palette steps; the algorithm only when the seed is overridden | Yes    |
 | 4   | Semantic (AIA)      | `colorInteractiveActionable`, `colorInteractiveActionablePressed`, `colorInteractiveDisabled`                                                                               | Apps, by override                      | A reference to a Map/Alias token or a palette step                        | Yes    |
 
-- Layer 3 also holds antd's Alias tokens (`alias.ts`, e.g. `colorTextDisabled`, `colorBgContainerDisabled`), with antd's names and meanings, derived from Map tokens the way antd derives them.
-- Names in layers 2 and 3 come from antd. Names in layer 4 come from DDS `Interactive/*` until Qi publishes semantic names (interim). Palette values and family names come from Qi; on a mismatch with DDS, Qi wins.
+- Layer 3 also holds Alias tokens (`alias.ts`, e.g. `colorTextDisabled`, `colorBgContainerDisabled`): named roles that reference Map tokens, as the reference model defines them.
+- Names in layers 2 and 3 come from the reference model (`docs/tokens.md` § Prior art). Names in layer 4 come from DDS `Interactive/*` until Qi publishes semantic names (interim). Palette values and family names come from Qi; on a mismatch with DDS, Qi wins.
 - A raw hex literal is allowed only in `src/theme/palette/`. A hex literal in `tokens/semantic.ts` is a bug.
 
 ## Resolution order
@@ -25,9 +25,9 @@ paths:
 One pure resolver, shared by `ConfigProvider`, `theme.useToken` and `theme.getDesignToken`:
 
 1. **Seed**: default seeds merged with the seed keys in `token`.
-2. **Map**: per color family, a seed equal to its default uses the Figma-tuned map. An overridden seed runs the algorithm (`generatePalette`, a 10-step palette like `@ant-design/colors`). Other families keep their Figma values.
+2. **Map**: per color family, a seed equal to its default uses the Figma-tuned map. An overridden seed runs the algorithm (`generatePalette`, a ten-color palette). Other families keep their Figma values.
 3. **Map overrides**: Map and Alias keys in `token` apply exactly. Nothing is regenerated from them.
-4. **References**: Alias and Semantic tokens resolve against the result of step 3, the way antd computes alias tokens.
+4. **References**: Alias and Semantic tokens resolve against the result of step 3.
 5. **Semantic overrides**: Semantic keys in `token` apply exactly. Unknown (custom) keys pass through untouched.
 
 Consequence of step 4: overriding `colorPrimaryActive` also moves every semantic token that references it, unless that semantic token is overridden too.
@@ -37,8 +37,8 @@ Consequence of step 4: overriding `colorPrimaryActive` also moves every semantic
 - No overrides: the default theme outputs EXACTLY the Figma values, never algorithm-generated colors.
 - Seed override, e.g. `colorPrimary`: regenerate that color's Map + Semantic tokens with the algorithm, so the family stays consistent.
 - Map or Semantic override: that exact value wins, and nothing is regenerated from it.
-- Slots follow antd's `genColorMapToken`: `Bg` 1, `BgHover` 2, `Border` 3, `BorderHover` 4, `Hover` 5 (4 for Success, Warning and Info), base 6, `Active` 7, and `TextHover`, `Text`, `TextActive` reuse 5, 6 and 7. A ten-step Qi family fills slot n with step n; a seven-step family fills slots 1 to 7 with steps 50, 100, 100, 200, 200, 300, 400.
-- RN has no hover. `*Hover` tokens stay for antd compatibility; components use the Pressed and Focused semantic tokens.
+- The slot table: `Bg` 1, `BgHover` 2, `Border` 3, `BorderHover` 4, `Hover` 5 (4 for Success, Warning and Info), seed 6, `Active` 7, and `TextHover`, `Text`, `TextActive` reuse 5, 6 and 7. A ten-step Qi family fills slot n with step n; a seven-step family fills slots 1 to 7 with steps 50, 100, 100, 200, 200, 300, 400.
+- RN has no hover. `*Hover` tokens stay for parity with the reference model; components use the Pressed and Focused semantic tokens.
 - `darkAlgorithm` only if Figma defines dark values. Otherwise keep the hook ready and ask before inventing a dark palette.
 
 ## Naming: Figma path to code name
@@ -59,8 +59,8 @@ The first row is a real DDS path; the others illustrate the rule (verify every p
 | `text/on-primary`             | `colorTextOnPrimary`             |
 | `border/focus ring`           | `colorBorderFocusRing`           |
 
-- Palette keys: `palette.<family>[<step>]`. Family in lowerCamelCase; steps numbered exactly as in Figma, never renumbered to antd's 1 to 10.
-- Collisions: if a converted name equals an antd Seed, Map or Alias name (`text/secondary` gives `colorTextSecondary`), it must mean the same thing, and the antd key is kept once. If the meanings differ, STOP and ask. Never rename silently.
+- Palette keys: `palette.<family>[<step>]`. Family in lowerCamelCase; steps numbered exactly as in Figma, never renumbered to palette slots.
+- Collisions: if a converted name equals a Seed, Map or Alias name (`text/secondary` gives `colorTextSecondary`), it must mean the same thing, and the existing key is kept once. If the meanings differ, STOP and ask. Never rename silently.
 - Non-color categories (spacing, radius, typography) will use their category word as the prefix. Confirm when that phase starts.
 - Renaming or removing a public token is a breaking change.
 
@@ -69,7 +69,7 @@ The first row is a real DDS path; the others illustrate the rule (verify every p
 ```ts
 /**
  * Fill of an actionable element while pressed.
- * @figma none; derived antd-style from DDS Interactive/Actionable
+ * @figma none; the `*Active` map token (palette slot 7) for DDS Interactive/Actionable
  * @default colorPrimaryActive, i.e. palette.digitalRed[600] = #B30635
  * @interim pending design: DDS defines no pressed state.
  */
@@ -86,7 +86,7 @@ A value design has not decided carries `@interim pending design: <reason>` and a
 1. Library defaults (Figma values).
 2. `<ConfigProvider theme={{ token }}>`: global.
 3. Nested `<ConfigProvider theme={{ token }}>`: a local section. `inherit: true` (default) merges the parent's theme config (token, components, algorithm) with its own, then resolves. `inherit: false` starts again from library defaults. Never merge resolved token objects.
-4. `theme.components.Button = { colorPrimary, algorithm? }`: per component. `algorithm: false` (default, like antd) applies the keys exactly, while references still re-resolve as in step 4 above. `true` re-runs the theme's algorithm with the component's seeds. A function is used as that component's algorithm.
+4. `theme.components.Button = { colorPrimary, algorithm? }`: per component. `algorithm: false` (default) applies the keys exactly, while references still re-resolve as in step 4 above. `true` re-runs the theme's algorithm with the component's seeds. A function is used as that component's algorithm.
 5. Component `style` prop: one instance, merged last.
 
 ## Custom tokens and docs

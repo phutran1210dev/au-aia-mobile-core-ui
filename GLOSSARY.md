@@ -33,11 +33,11 @@ A single design decision that other tokens derive from, such as the primary bran
 _Avoid_: base color, root token
 
 **Map token**:
-A token derived from seed tokens, with the name and meaning Ant Design gives it, such as the primary color while pressed. Ant Design's alias tokens, such as disabled text, belong to this layer.
+A token derived from seed tokens that colors one purpose, such as the primary color while pressed or secondary text. Alias tokens, which name roles such as disabled text, belong to this layer.
 _Avoid_: derived color
 
 **Slot**:
-One of the ten positions in Ant Design's color scale for a family, lightest first, with the seed color in the sixth; each map token takes its color from one slot. A slot is not a step: one step can fill two slots.
+One of the ten positions in a family's color scale, lightest first, with the seed color in the sixth; each map token takes its color from one slot. A slot is not a step: one step can fill two slots.
 _Avoid_: index, level, palette index
 
 **Semantic token**:

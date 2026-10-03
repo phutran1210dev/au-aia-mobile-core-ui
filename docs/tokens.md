@@ -1,6 +1,6 @@
 # Color tokens
 
-This page lists every public color token of `@au-aia/mobile-core-ui`: its code name, the Figma source of its default, the default value, and what it references. Read it with `GLOSSARY.md` for the terms and `.claude/rules/tokens-naming.md` for the rules.
+This page lists every public color token of `@au-aia/mobile-core-ui`: its code name, the Figma source of its default, the default value, and what it references. Read it with `GLOSSARY.md` for the terms and `.claude/rules/tokens-naming.md` for the rules. [Prior art](#prior-art) credits the token model this library follows.
 
 All hex values were read from Figma with the Figma MCP on 2026-10-03:
 
@@ -11,15 +11,15 @@ Tokens marked _interim_ carry `@interim pending design` in their JSDoc. Their na
 
 ## How the layers fit together
 
-| Layer    | Public | Names from | Default comes from                                     |
-| -------- | ------ | ---------- | ------------------------------------------------------ |
-| Palette  | No     | Qi         | Raw Qi hex                                             |
-| Seed     | Yes    | antd       | A palette step                                         |
-| Map      | Yes    | antd       | Hand-mapped palette steps; the algorithm on override   |
-| Alias    | Yes    | antd       | A reference to a map token                             |
-| Semantic | Yes    | DDS        | A reference to a map or alias token, or a palette step |
+| Layer    | Public | Names from      | Default comes from                                     |
+| -------- | ------ | --------------- | ------------------------------------------------------ |
+| Palette  | No     | Qi              | Raw Qi hex                                             |
+| Seed     | Yes    | Reference model | A palette step                                         |
+| Map      | Yes    | Reference model | Hand-mapped palette steps; the algorithm on override   |
+| Alias    | Yes    | Reference model | A reference to a map token                             |
+| Semantic | Yes    | DDS             | A reference to a map or alias token, or a palette step |
 
-With no overrides, every token equals its Figma value below. Overriding a seed regenerates that seed's family with antd's palette algorithm. Overriding a map, alias or semantic token sets that exact value, and every token that references it follows.
+With no overrides, every token equals its Figma value below. Overriding a seed regenerates that seed's family with the derivation algorithm. Overriding a map, alias or semantic token sets that exact value, and every token that references it follows.
 
 ## Seed tokens
 
@@ -37,9 +37,9 @@ With no overrides, every token equals its Figma value below. Overriding a seed r
 
 ## Map tokens
 
-### Slots
+### Palette slots
 
-antd fills ten palette slots per seeded family, lightest first, with the seed color in slot 6. Map tokens read slots 1 to 7, as antd's `genColorMapToken` does:
+Each seeded family has ten palette slots, lightest first, with the seed color in slot 6. Map tokens read slots 1 to 7, through this slot table:
 
 | Slot | Token suffix                                      |
 | ---- | ------------------------------------------------- |
@@ -56,7 +56,7 @@ The default theme fills the slots with Qi steps:
 - **Ten-step family** (Digital red): slot n is step n, so map tokens use steps 50 to 600. Steps 700 to 900 stay in the palette only.
 - **Seven-step families** (green, yellow, cerise, blue): slots 1 to 7 are steps 50, 100, 100, 200, 200, 300, 400. Steps 500 and 600 stay in the palette only.
 
-An overridden seed fills slot n with color n of `generatePalette(seed)`; the result matches antd 6.6.5's own `getDesignToken`. `*Hover` tokens exist for antd compatibility; React Native has no hover, so components use the semantic Pressed tokens, which reference the `*Active` tokens.
+An overridden seed fills slot n with color n of `generatePalette(seed)`, and tests check the result against the reference model. `*Hover` tokens exist for API parity. Touch screens have no hover, so components use the semantic Pressed tokens, which reference the `*Active` tokens.
 
 ### Primary (Digital red)
 
@@ -162,7 +162,7 @@ An overridden seed fills slot n with color n of `generatePalette(seed)`; the res
 
 ## Semantic tokens
 
-Every semantic token is interim (Checkpoint 2, decision 1): Qi has no semantic token names, so the names come from DDS `Interactive/*`. Pressed and disabled are derived antd-style because DDS defines no interaction states.
+Every semantic token is interim (Checkpoint 2, decision 1): Qi has no semantic token names, so the names come from DDS `Interactive/*`. Pressed and disabled follow the reference model's derivation, because DDS defines no interaction states.
 
 | Code name                            | Figma path                       | Default   | References                     |
 | ------------------------------------ | -------------------------------- | --------- | ------------------------------ |
@@ -185,7 +185,7 @@ Every semantic token is interim (Checkpoint 2, decision 1): Qi has no semantic t
 
 `theme.components.<Name>` overrides apply to one component's token, and a component reads that token through `createStyles(factory, { component: '<Name>' })`.
 
-- The `component` option is **experimental** (`@experimental` in JSDoc): it is not in the `theme.md` API yet and may change while the UI kit takes shape.
+- The `component` option is **experimental** (`@experimental` in JSDoc): it may change while the UI kit takes shape.
 - `algorithm: false` (the default) applies the component's keys exactly; alias and semantic tokens that reference them re-resolve.
 - `algorithm: true` re-runs the theme's algorithm with the component's seeds, so the family is regenerated.
 
@@ -242,23 +242,27 @@ These exist only in DDS, with no Qi step, so the palette leaves them out (Checkp
 | Red 20%            | `#F39CB3` | DDS primary node swatch     |
 | `Primary/Blue/125` | `#175A82` | DDS variable with no swatch |
 
-## Deviations from antd
+## Prior art
 
-- **`darken`.** `@ant-design/fast-color` passes the HSV saturation into an HSL conversion, which shifts tinted backgrounds even at `darken(0)`. This library darkens in HSL, as `@ctrl/tinycolor` does.
-- **`colorBgContainerDisabled`** references `colorBgLayout`, because antd's source token `colorFillTertiary` is not defined yet.
-- **Component overrides.** With `algorithm: false`, alias and semantic tokens that reference an overridden key re-resolve. antd applies component keys without re-resolving.
-- **`componentSize`** is `'small' | 'medium' | 'large'`; antd says `middle`.
-- **Not defined yet**: `colorFill*`, `colorBgElevated`, `colorBgSpotlight`, `colorBgSolid*`, `colorBgBlur`, `colorSplit`, `colorLink*`, `colorBorderDisabled`, `colorErrorBgActive`, `colorErrorBgFilledHover`, antd's preset color palettes, and every non-color token. Each needs a Figma value first.
-- **No `darkAlgorithm` or `compactAlgorithm`**: Figma defines no dark values or compact sizes. `ThemeConfig['algorithm']` already accepts an array, ready for them.
+The seed, map and alias token model, the palette slots and the derivation algorithm follow [Ant Design's theme system](https://ant.design/docs/react/customize-theme#theme) and its [ConfigProvider](https://ant.design/components/config-provider#config); the rest of this page calls it the reference model. `generatePalette` and `utils/color.ts` port code from `@ant-design/colors` and `@ant-design/fast-color` under the MIT License, and the notices stay in those files. Tests compare the output with the reference libraries through `src/theme/__fixtures__/reference.ts`.
+
+This library differs from the reference model in these ways:
+
+- **`darken`**: `@ant-design/fast-color` passes the HSV saturation into an HSL conversion, which shifts tinted backgrounds even at `darken(0)`. This library darkens in HSL, as `@ctrl/tinycolor` does.
+- **`colorBgContainerDisabled`**: it references `colorBgLayout`, because its source in the reference model, `colorFillTertiary`, is not defined yet.
+- **Component overrides**: with `algorithm: false`, alias and semantic tokens that reference an overridden key re-resolve. The reference model applies component keys without re-resolving.
+- **`componentSize`**: `'small' | 'medium' | 'large'`, where the reference model says `middle`.
+- **Not defined yet**: `colorFill*`, `colorBgElevated`, `colorBgSpotlight`, `colorBgSolid*`, `colorBgBlur`, `colorSplit`, `colorLink*`, `colorBorderDisabled`, `colorErrorBgActive`, `colorErrorBgFilledHover`, the preset color palettes, and every non-color token. Each needs a Figma value first.
+- **No dark or compact algorithm**: Figma defines no dark values or compact sizes. `ThemeConfig['algorithm']` already accepts an array, ready for them.
 
 ## Open questions for design
 
 1. **Semantic token names.** Qi has no semantic layer, so the names come from DDS `Interactive/*`. Will Qi publish semantic token names?
-2. **Interaction states.** DDS defines no pressed, focused, disabled or selected colors. Pressed is derived as antd's `*Active` (slot 7, e.g. `digitalred-600`), and disabled from neutral tokens (`digitalcharcoal-50` fill, `digitalcharcoal-300` text). Focused and selected are not defined.
+2. **Interaction states.** DDS defines no pressed, focused, disabled or selected colors. Pressed is the `*Active` map token (slot 7, such as `digitalred-600`), and disabled from neutral tokens (`digitalcharcoal-50` fill, `digitalcharcoal-300` text). Focused and selected are not defined.
 3. **Brand red.** Is `Primary/Red/100` `#E00842` or `#D31145`?
 4. **Highlight.** DDS calls AIA Blue `#0C6DD2` the highlight color, but `Interactive/highlighted` is navy `#082065`. Which is right, and is Highlighted the selected state?
 5. **Warning and Error.** Both have swatches on the interactive page but no `Interactive/*` variables. Will they get variables?
 6. **Digital light green.** Qi has variables but no swatch, so its palette group is unknown.
-7. **Disabled container.** antd derives it from a fill token (`colorFillTertiary`) that Figma does not define. Should there be fill tokens?
+7. **Disabled container.** It borrows `colorBgLayout` because Figma defines no fill tokens, such as `colorFillTertiary`. Should there be fill tokens?
 8. **Dark mode.** No dark values exist in Figma.
 9. **Secondary seed.** There is no `colorSecondary` seed. Should one secondary family become a brand seed?

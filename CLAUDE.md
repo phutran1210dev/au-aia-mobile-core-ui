@@ -2,7 +2,7 @@
 
 # @au-aia/mobile-core-ui
 
-Core design system for AU-AIA React Native apps: design tokens, an antd-style `ConfigProvider` + `theme` API, and a logic-free UI kit. Consumers: the AU-AIA health app, a future super app and other teams' modules. "Verified in" names the file a fact was checked against; re-check that file when something looks stale.
+Core design system for AU-AIA React Native apps: design tokens, a `ConfigProvider` + `theme` API, and a logic-free UI kit. Consumers: the AU-AIA health app, a future super app and other teams' modules. "Verified in" names the file a fact was checked against; re-check that file when something looks stale.
 
 ## Project matrix
 
@@ -30,7 +30,7 @@ Core design system for AU-AIA React Native apps: design tokens, an antd-style `C
 - Use `get_variable_defs`, `get_design_context` and `get_screenshot` on each node.
 - Figma MCP unavailable, or a value missing or ambiguous: STOP and ask. Never invent a hex value.
 - `.mcp.json` holds a personal Figma token and is gitignored. Never commit it.
-- API to mirror, adapted to RN: antd [theme config](https://ant.design/docs/react/customize-theme#theme) and [ConfigProvider](https://ant.design/components/config-provider#config).
+- The token model and theme API follow a reference model, credited with links in `docs/tokens.md` § Prior art. Check it there when behavior is unclear, and record any deviation.
 
 ## Commands (all from `package.json`; do not invent scripts)
 
@@ -62,11 +62,11 @@ While a background job runs:
 ## Color tokens in brief
 
 1. **Palette**: raw hex from Qi, `palette.digitalRed[500]`. Internal; components and apps never read it.
-2. **Seed**: antd seed names (`colorPrimary`, `colorTextBase`...; no `colorSecondary`). Default is the Figma brand value.
-3. **Map**: antd MapToken and AliasToken names and meanings (`colorPrimaryActive`, `colorBgContainer`...).
+2. **Seed**: seed tokens (`colorPrimary`, `colorTextBase`...; no `colorSecondary`). Default is the Figma brand value.
+3. **Map**: map and alias tokens, one color per purpose (`colorPrimaryActive`, `colorBgContainer`...).
 4. **Semantic**: DDS `Interactive/*` names, interim (`colorInteractiveActionablePressed`...). References a Map token or palette step, never hex.
 
-Each layer derives from the one before. With no overrides, the output equals the Figma values exactly; overriding a Map token updates the semantic tokens that reference it, as antd does. Override priority, low to high: library defaults, root `ConfigProvider`, nested `ConfigProvider`, `theme.components.<Name>`, component `style` prop. Details: `.claude/rules/tokens-naming.md`.
+Each layer derives from the one before. With no overrides, the output equals the Figma values exactly; overriding a Map token updates the semantic tokens that reference it. Override priority, low to high: library defaults, root `ConfigProvider`, nested `ConfigProvider`, `theme.components.<Name>`, component `style` prop. Details: `.claude/rules/tokens-naming.md`.
 
 ## Hard rules (these win over any skill's advice)
 
