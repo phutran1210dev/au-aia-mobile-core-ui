@@ -472,6 +472,16 @@ export const qiTypography: Readonly<Record<string, string | number>> = {
   'Weight/body/strong2': 'bold',
 };
 
+/**
+ * The family name each Qi family value registers under on iOS and Android: the typographic
+ * family (name ID 16, else 1) read from the font files on 2026-10-03. React Native's
+ * `fontFamily` needs this name; Qi stores `OpenSans`, which no font file declares.
+ */
+export const registeredFamilies: Readonly<Record<string, string>> = {
+  'OpenSans': 'Open Sans',
+  'AIA Everest': 'AIA Everest',
+};
+
 /** The numeric (CSS) weight of each Qi weight name. */
 export const qiWeightNumbers: Readonly<Record<string, number>> = {
   regular: 400,
@@ -493,7 +503,7 @@ export interface TypographyFixture {
 /** Expected default of every public typography token. */
 export const typographyFixtures: readonly TypographyFixture[] = [
   // Seed
-  { name: 'fontFamily', qi: 'Family/body', value: 'OpenSans' },
+  { name: 'fontFamily', qi: 'Family/body', value: 'Open Sans' },
   { name: 'fontSize', qi: 'Size/body2', value: 14 },
 
   // Map: sizes

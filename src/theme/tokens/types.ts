@@ -74,11 +74,13 @@ export interface SeedToken {
   colorBgBase: string;
 
   /**
-   * Font family of body text: one family name, exactly as the app registers the font.
-   * Apps that register the font under another name override it through `ConfigProvider`.
-   * @figma Qi AIA Typography/Family/body
-   * @default typography.family.body = OpenSans
-   * @interim pending design: the iOS PostScript name and Android file name are not known yet.
+   * Font family of body text: one family name, exactly as the app registers the font. The
+   * default is the family Open Sans declares, so with the fonts registered as a family (see
+   * docs/tokens.md § Fonts), `fontWeight` picks the face on iOS and Android. Apps that
+   * register the font under another name override it through `ConfigProvider`.
+   * @figma Qi AIA Typography/Family/body (stores `OpenSans`)
+   * @default typography.family.body = Open Sans
+   * @interim pending design: the name the health app registers is not confirmed yet.
    */
   fontFamily: string;
   /**
@@ -902,10 +904,11 @@ export interface SemanticColorToken {
  */
 export interface SemanticTypographyToken {
   /**
-   * Font family of headings: one family name, exactly as the app registers the font.
+   * Font family of headings: one family name, exactly as the app registers the font. AIA
+   * Everest is licensed; without it, headings fall back to the system font.
    * @figma Qi AIA Typography/Family/headline
    * @default typography.family.headline = AIA Everest
-   * @interim pending design: the iOS PostScript name and Android file name are not known yet.
+   * @interim pending design: the name the health app registers is not confirmed yet.
    */
   fontFamilyHeadline: string;
   /**

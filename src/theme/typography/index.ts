@@ -7,11 +7,13 @@
  * INTERNAL, like the palette: components and apps read seed, map or semantic tokens.
  */
 export const typography = {
+  // Families hold the name the font files register under, which React Native's fontFamily
+  // needs on both platforms, rather than Qi's display string.
   family: {
-    /** Qi `Family/headline`. */
+    /** Qi `Family/headline`: `AIA Everest`, the name the font registers under too. */
     headline: 'AIA Everest',
-    /** Qi `Family/body`. */
-    body: 'OpenSans',
+    /** Qi `Family/body` stores `OpenSans`; the font registers as `Open Sans`. */
+    body: 'Open Sans',
   },
   size: {
     /** Qi `Size/body1`. */

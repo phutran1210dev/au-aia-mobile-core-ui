@@ -190,7 +190,7 @@ Qi's `AIA Typography` collection holds the values, in mode `EN`. The library tak
 
 | Code name            | Layer | Figma path (Qi `AIA Typography`)                         | Default                                  |
 | -------------------- | ----- | -------------------------------------------------------- | ---------------------------------------- |
-| `fontFamily`         | Seed  | `Family/body`                                            | `OpenSans`, interim                      |
+| `fontFamily`         | Seed  | `Family/body`                                            | `Open Sans`, interim                     |
 | `fontSize`           | Seed  | `Size/body2`                                             | `14`                                     |
 | `fontSizeSM`         | Map   | `Size/body3`                                             | `12`                                     |
 | `fontSizeLG`         | Map   | `Size/body1`                                             | `16`                                     |
@@ -216,7 +216,7 @@ Qi's `AIA Typography` collection holds the values, in mode `EN`. The library tak
 
 Overriding `fontSize` regenerates the other sizes and line heights with the reference model's formula. The `fontHeight*` tokens follow overrides of their size or ratio, and an explicit `fontHeight*` override wins.
 
-`fontFamily` is interim. React Native needs the exact name the app registers: the iOS PostScript name and the Android font file name, which are not known yet. An app that registers the font under another name overrides `fontFamily` and `fontFamilyHeadline` through `ConfigProvider`. A family the app has not registered falls back to the system font; iOS logs it, Android does not.
+`fontFamily` and `fontFamilyHeadline` hold the family names the font files declare, `Open Sans` and `AIA Everest`. They stay interim until the health app confirms it registers the fonts under those names; [Fonts](#fonts) explains the registration.
 
 ### Semantic typography tokens
 
@@ -333,12 +333,12 @@ Other naming issues:
 
 Typography differs between Qi and DDS text styles too. Qi values win:
 
-| What                | Qi                                                 | DDS                                                                                     | Used   |
-| ------------------- | -------------------------------------------------- | --------------------------------------------------------------------------------------- | ------ |
-| Body letter spacing | `Letter spacing/body` is 0                         | Body styles use 0.1                                                                     | 0      |
-| Body family name    | `Family/body` is `OpenSans`                        | Text styles name `Open Sans`                                                            | Qi     |
-| Heading numbering   | Desktop `headline4` is 28/36, `headline5` is 24/32 | Desktop `Heading 4` is 24/32                                                            | Qi     |
-| Weight binding      | none                                               | `EN/Desktop/Body/Body 2 Regular` binds `Typography/Weight/medium` (500) but renders 400 | unused |
+| What                | Qi                                                 | DDS                                                                                     | Used                                    |
+| ------------------- | -------------------------------------------------- | --------------------------------------------------------------------------------------- | --------------------------------------- |
+| Body letter spacing | `Letter spacing/body` is 0                         | Body styles use 0.1                                                                     | 0                                       |
+| Body family name    | `Family/body` is `OpenSans`                        | Text styles name `Open Sans`                                                            | `Open Sans`, the name the font declares |
+| Heading numbering   | Desktop `headline4` is 28/36, `headline5` is 24/32 | Desktop `Heading 4` is 24/32                                                            | Qi                                      |
+| Weight binding      | none                                               | `EN/Desktop/Body/Body 2 Regular` binds `Typography/Weight/medium` (500) but renders 400 | unused                                  |
 
 ## Values dropped from the palette
 
@@ -380,6 +380,6 @@ This library differs from the reference model in these ways:
 7. **Disabled container.** It borrows `colorBgLayout` because Figma defines no fill tokens, such as `colorFillTertiary`. Should there be fill tokens?
 8. **Dark mode.** No dark values exist in Figma.
 9. **Secondary seed.** There is no `colorSecondary` seed. Should one secondary family become a brand seed?
-10. **Font names.** Which names do apps register for Open Sans and AIA Everest: the iOS PostScript name and the Android font file name? `fontFamily` and `fontFamilyHeadline` hold Qi's `OpenSans` and `AIA Everest` until then.
-11. **Font weights on Android.** On the Android emulator, which has no Open Sans, `fontWeightStrong` (600) and `fontWeightHeadline` (500) render as regular, and only 700 renders bold; iOS renders all three. For a custom family, Android needs every weight registered, such as in a font XML resource. How will apps register the weights?
+10. **Font names.** Does the health app register the fonts as the families `Open Sans` and `AIA Everest`, as [Fonts](#fonts) describes? The tokens use those names, interim until it does.
+11. **Android 7 and 8.** Android before version 9 (API 28) draws only regular and bold from a font family, so weights 500 and 600 look regular there. Is that acceptable for the apps' minimum Android version?
 12. **Missing Figma links.** Part 2b and Part 3 need the DDS: Components v3.2.1 link with a node that uses its spacing and radius variables, a DDS AU node that uses the `Box Shadow` styles, and a node that uses `Headings/Mobile/*` and `Body/* - Link`.

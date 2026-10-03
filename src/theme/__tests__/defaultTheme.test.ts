@@ -7,6 +7,7 @@ import {
   qiPrimitives,
   qiTypography,
   qiWeightNumbers,
+  registeredFamilies,
   tokenFixtures,
   typographyFixtures,
 } from '../__fixtures__/figma';
@@ -67,7 +68,9 @@ describe('token fixtures', () => {
       const expected =
         per !== undefined
           ? Number(source) / Number(qiTypography[per])
-          : (qiWeightNumbers[String(source)] ?? source);
+          : (qiWeightNumbers[String(source)] ??
+            registeredFamilies[String(source)] ??
+            source);
       expect({ name, value: expected }).toEqual({ name, value });
     }
   });
